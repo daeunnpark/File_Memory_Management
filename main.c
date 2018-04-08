@@ -3,7 +3,7 @@
 #include "errno.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 int addr_count=0;
 int files_count;
@@ -29,18 +29,18 @@ void printArray1(struct addr_in_use* ptr);
 void printArray2(struct files_in_use* ptr);
 
 struct addr_in_use addr_array[25];
-struct files_in_use file_array[25];
+struct files_in_use files_array[25];
 
 
 int main(){
 
-//	printArray(addr_array);
-printArray2(file_array);
-cse320_free(cse320_malloc(30)); 
-//printArray2(file_array);
+	//	printArray(addr_array);
+	printArray2(files_array);
+	cse320_free(cse320_malloc(30)); 
+	//printArray2(file_array);
 
-cse320_clean();
-printArray2(file_array); 
+	cse320_clean();
+	printArray2(files_array); 
 
 }
 
@@ -53,7 +53,7 @@ void *cse320_malloc(size_t size){
 	struct addr_in_use *new_addr = malloc(sizeof(struct addr_in_use)); 
 
 	new_addr->addr = addr;
-	new_addr->ref_count = 1;
+	new_addr->ref_count++;
 	addr_array[addr_count]= *new_addr;
 	addr_count++;
 
@@ -74,11 +74,12 @@ int cse320_free(void *ptr){
 					errno=EADDRNOTAVAIL;
 					exit(-1);
 				}
-				else{// =1
-//printf("freed:!!\n");		
-			free(ptr);					
-					addr_array[k].ref_count=0;
-					break;}
+				else{// >0
+					//printf("freed:!!\n");		
+					free(ptr);					
+					addr_array[k].ref_count--;
+					break;
+				}
 			}
 
 		}
@@ -98,25 +99,84 @@ int cse320_free(void *ptr){
 
 
 void cse320_clean(){
-int j;
+	int j;
 
-for(j=0; j<25; j++){
-if(addr_array[j].ref_count==1){
-addr_array[j].addr= NULL;
+	for(j=0; j<25; j++){
+		if(addr_array[j].ref_count>0){
+			addr_array[j].addr= NULL;
+		}
+	}
+
+
+	for(j=0; j<25; j++){
+		if(files_array[j].ref_count>0){
+			files_array[j].filename= NULL;
+		}
+	}
+
 }
+FILE *cse320_fopen(char *filename){
+	int o;
+	for(o=0; o<25;o++){
+		if(files_array[o].filename!=NULL){
+			if(strcmp(filename,files_array[o].filename) ==0 ){
+				files_array[o].ref_count = files_array[o].ref_count+1; 
+				return fopen(files_array[o].filename,"r" );
+			}
+
+		}
+
+	}
+
+	if(o==25){
+
+		struct files_in_use* new_file = malloc(sizeof(struct files_in_use));
+
+		strcpy(new_file->filename, filename);
+		new_file->ref_count = new_file->ref_count+1;
+		files_array[files_count]=*new_file;
+		files_count++;
+	}
+	return fopen(files_array[o].filename, "r");
+
 }
 
 
-for(j=0; j<25; j++){
-if(file_array[j].ref_count==1){
-file_array[j].filename= NULL;
-}
-}
 
 
 
 
 
+void cse320_fclose(char* filename){
+	int k;
+	//int found = 0;
+
+	for(k=0; k<25; k++){
+		if(files_array[k].filename!=NULL){
+			if(strcmp(filename,files_array[k].filename) ==0){
+				if(files_array[k].ref_count==0){
+					printf("Close: Ref count is zero\n");
+					errno=EINVAL;
+					exit(-1);
+				}
+				else{// >0
+					//printf("Closed:!!\n");		
+					//free(ptr);					
+					files_array[k].ref_count--;
+					break;
+				}
+			}
+
+		}
+
+
+
+	}
+	if(k==25){ // not found
+		printf("Close: Illegal filename\n"); 
+		errno=ENOENT;
+		exit(-1); 
+	}
 
 
 
