@@ -1,5 +1,5 @@
 #include "cse320_functions.h"
-
+#include <unistd.h>
 #include "errno.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +21,7 @@ struct files_in_use{
 
 	char* filename;
 	int ref_count;// = 0;
-
+	FILE *fptr;
 };
 
 
@@ -35,11 +35,15 @@ struct files_in_use files_array[25];
 int main(){
 
 	//	printArray(addr_array);
-	printArray2(files_array);
-	cse320_free(cse320_malloc(30)); 
+	//	printArray2(files_array);
+	//cse320_free(cse320_malloc(30)); 
 	//printArray2(file_array);
 
-	cse320_clean();
+	//	cse320_clean();
+//	cse320_fopen("A");
+//	cse320_fopen("A");
+//cse320_fclose("A");
+cse320_fclose("B");
 	printArray2(files_array); 
 
 }
@@ -115,29 +119,38 @@ void cse320_clean(){
 	}
 
 }
+
+
+
 FILE *cse320_fopen(char *filename){
 	int o;
+	FILE *ptr = NULL;
 	for(o=0; o<25;o++){
 		if(files_array[o].filename!=NULL){
 			if(strcmp(filename,files_array[o].filename) ==0 ){
 				files_array[o].ref_count = files_array[o].ref_count+1; 
-				return fopen(files_array[o].filename,"r" );
+				//printf("F2: %d\n", fileno(files_array[o].fptr));	
+				return files_array[o].fptr;
+
 			}
 
 		}
 
 	}
-
 	if(o==25){
-
 		struct files_in_use* new_file = malloc(sizeof(struct files_in_use));
-
+		new_file->filename = malloc(sizeof(1000));
 		strcpy(new_file->filename, filename);
 		new_file->ref_count = new_file->ref_count+1;
+
+		ptr = fopen(filename, "r");
+		//printf("F1: %d\n", fileno(ptr)); 
+		new_file->fptr = ptr;
 		files_array[files_count]=*new_file;
+		//printf("F01: %d\n", fileno(files_array[files_count].fptr)); 		
 		files_count++;
 	}
-	return fopen(files_array[o].filename, "r");
+	return files_array[files_count-1].fptr;
 
 }
 
@@ -160,9 +173,7 @@ void cse320_fclose(char* filename){
 					exit(-1);
 				}
 				else{// >0
-					//printf("Closed:!!\n");		
-					//free(ptr);					
-					files_array[k].ref_count--;
+				//	printf("SHOULD BE 0: %d\n",close(fileno(files_array[k].fptr)));					files_array[k].ref_count--;
 					break;
 				}
 			}
@@ -197,7 +208,13 @@ void printArray1(struct addr_in_use* ptr){
 
 void printArray2(struct files_in_use* ptr){
 	int j=0;
-	for(j=0; j<25;j++){
-		printf("addr :%s, count: %d\n", (ptr+j)->filename, (ptr+j)->ref_count);
+	for(j=0; j<1;j++){
+
+
+
+		// printf("F2: %d\n", fileno(files_array[j].fptr));
+		//		printf("filename :%s, count: %d\n", (ptr+j)->filename, (ptr+j)->ref_count);
+
+		printf("filename :%s, count: %d\n, F: %d\n", (ptr+j)->filename, (ptr+j)->ref_count, fileno((ptr+j)->fptr));
 	}
 }
