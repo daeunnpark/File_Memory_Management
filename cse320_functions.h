@@ -8,6 +8,9 @@ FILE *cse320_fopen(char *filename);
 void cse320_fclose(char *filename);
 void cse320_clean();
 
+void cse320_fork();
+void cse320_reap(int pid);
+void cse320_settimer(int newN);
 
 
 #endif

@@ -4,11 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <sys/types.h>
 
 int addr_count=0;
 int files_count;
-
-
+int N=10;
 struct addr_in_use{
 
 	void* addr;
@@ -33,7 +35,7 @@ struct files_in_use files_array[25];
 
 
 int main(){
-
+	//	srand(time(NULL));
 	//	printArray(addr_array);
 	//	printArray2(files_array);
 
@@ -46,7 +48,7 @@ int main(){
 	//cse320_fclose("A");
 	//	cse320_fclose("B");
 	//printArray2(files_array); 
-
+	cse320_fork();
 }
 
 
@@ -54,17 +56,25 @@ int main(){
 
 void *cse320_malloc(size_t size){
 	printf("malloc called\n");
-	void *addr = malloc(size);
-	struct addr_in_use *new_addr = malloc(sizeof(struct addr_in_use)); 
-
-	new_addr->addr = addr;
-	new_addr->ref_count++;
-	addr_array[addr_count]= *new_addr;
-	addr_count++;
-
-	return addr;
 
 
+	if(addr_count<25){
+
+		void *addr = malloc(size);
+		struct addr_in_use *new_addr = malloc(sizeof(struct addr_in_use)); 
+
+		new_addr->addr = addr;
+		new_addr->ref_count++;
+		addr_array[addr_count]= *new_addr;
+		addr_count++;
+
+		return addr;
+
+	} else {
+		printf("Not enough memory\n");
+		exit(-1);
+
+	}
 }
 
 int cse320_free(void *ptr){
@@ -80,15 +90,14 @@ int cse320_free(void *ptr){
 					exit(-1);
 				} else{// >0
 					//printf("freed:!!\n");		
-					free(ptr);					
+					free(addr_array[k].addr);				
+					//free(ptr);					
 					addr_array[k].ref_count--;
 					break;
 				}
 			}
 
 		}
-
-
 
 	}
 
@@ -128,40 +137,47 @@ FILE *cse320_fopen(char *filename){
 	int o;
 	FILE *ptr = NULL;
 
-	//printf("F1: %d\n", fileno(ptr)); 
-	for(o=0; o<25;o++){
-		if(files_array[o].filename!=NULL){
-			if(strcmp(filename,files_array[o].filename) ==0 ){
-				files_array[o].ref_count = files_array[o].ref_count+1; 
-				return files_array[o].fptr;
+
+	if(files_count<25){
+
+		//printf("F1: %d\n", fileno(ptr)); 
+		for(o=0; o<25;o++){
+			if(files_array[o].filename!=NULL){
+				if(strcmp(filename,files_array[o].filename) ==0 ){
+					files_array[o].ref_count = files_array[o].ref_count+1; 
+					return files_array[o].fptr;
+
+				}
 
 			}
 
 		}
 
+
+		if(o==25){
+			struct files_in_use* new_file = malloc(sizeof(struct files_in_use));
+			new_file->filename = malloc(sizeof(1000));
+			strcpy(new_file->filename, filename);
+			new_file->ref_count = new_file->ref_count+1;
+
+			ptr = fopen(filename, "r");
+
+			new_file->fptr = ptr;
+			files_array[files_count]=*new_file;
+			files_count++;
+		}
+		return files_array[files_count-1].fptr;
+
+
+	} else {
+
+		printf("Too many opened files\n");
+		exit(-1);
+
 	}
 
-
-
-
-	if(o==25){
-		struct files_in_use* new_file = malloc(sizeof(struct files_in_use));
-		new_file->filename = malloc(sizeof(1000));
-		strcpy(new_file->filename, filename);
-		new_file->ref_count = new_file->ref_count+1;
-
-		ptr = fopen(filename, "r");
-
-		new_file->fptr = ptr;
-		files_array[files_count]=*new_file;
-		files_count++;
-	}
-	return files_array[files_count-1].fptr;
 
 }
-
-
-
 
 
 
@@ -197,6 +213,61 @@ void cse320_fclose(char* filename){
 	}
 
 }
+
+
+
+void cse320_fork(){
+	int status;
+
+	pid_t pid= getpid();
+
+
+	printf("Current Process ID is : %d\n",pid);
+
+	//pid = fork();
+	printf(" pid: %d \n", getpid());
+/*
+	if(pid==0){// child
+		exit(0);
+	
+}
+*/
+printf("N: %d\n", N);	
+		signal(SIGALRM, cse320_reap);
+alarm(1);
+sleep(1);
+printf("rrr\n");
+	}
+
+void cse320_reap(int signum){
+	int status;
+	printf("reap called\n");
+	if(getpid()!=0){// parent
+		//printf("%d: going to sleep for a while - child %d might die while I snooze\n",(int)getpid(), (int)gloPid);
+
+
+		pid_t pid;
+		while((pid = waitpid(-1, &status, 0))>0){
+			//printf("ERROR in waitpid");
+			printf("CHILD %d terminated\n", pid);
+
+			// //system("ps -eo pid,ppid,stat,cmd");
+
+		}	
+	}
+printf("222\n");
+alarm(5);
+sleep(5);
+}
+
+void cse320_settimer(int newN) {
+
+	N = newN;
+
+}
+
+
+
 
 
 
