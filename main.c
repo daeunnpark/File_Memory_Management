@@ -1,4 +1,5 @@
 #include "cse320_functions.h"
+
 #include <unistd.h>
 #include "errno.h"
 #include <stdio.h>
@@ -7,10 +8,12 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/time.h>
 
 int addr_count=0;
 int files_count;
-int N=10;
+int N=5;
+int reapflag=0;
 struct addr_in_use{
 
 	void* addr;
@@ -48,8 +51,21 @@ int main(){
 	//cse320_fclose("A");
 	//	cse320_fclose("B");
 	//printArray2(files_array); 
+	//cse320_settimer(1);
+
+	cse320_settimer(1);
+
 	cse320_fork();
+	printf("-----------------\n");
+	cse320_fork();
+	printf("-----------------\n"); 
+	cse320_fork();
+	printf("-----------------\n"); 
+	sleep(10);
+
+	//system("ps -eo pid,ppid,stat,cmd");
 }
+
 
 
 
@@ -218,52 +234,51 @@ void cse320_fclose(char* filename){
 
 void cse320_fork(){
 	int status;
-
 	pid_t pid= getpid();
 
-
-	printf("Current Process ID is : %d\n",pid);
-
-	//pid = fork();
+	pid = fork();
 	printf(" pid: %d \n", getpid());
-/*
-	if(pid==0){// child
+
+	if(pid==0){ // child
+		printf("CHILd HERE\n");	
 		exit(0);
 	
-}
-*/
-printf("N: %d\n", N);	
-		signal(SIGALRM, cse320_reap);
-alarm(1);
-sleep(1);
-printf("rrr\n");
+} else { // parent
+
+		if(!reapflag){
+			signal(SIGALRM, cse320_reap);
+			alarm(N); // alarm set
+			reapflag=1;
+		}
+
 	}
+
+
+}
+
+
 
 void cse320_reap(int signum){
 	int status;
-	printf("reap called\n");
-	if(getpid()!=0){// parent
-		//printf("%d: going to sleep for a while - child %d might die while I snooze\n",(int)getpid(), (int)gloPid);
+	//	printf("reap called\n");
 
+
+	if(getpid()!=0){// parent
 
 		pid_t pid;
 		while((pid = waitpid(-1, &status, 0))>0){
-			//printf("ERROR in waitpid");
 			printf("CHILD %d terminated\n", pid);
-
-			// //system("ps -eo pid,ppid,stat,cmd");
 
 		}	
 	}
-printf("222\n");
-alarm(5);
-sleep(5);
+	//system("ps -eo pid,ppid,stat,cmd"); 	
 }
 
+
+
+
 void cse320_settimer(int newN) {
-
 	N = newN;
-
 }
 
 
