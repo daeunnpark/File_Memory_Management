@@ -38,6 +38,10 @@ struct files_in_use files_array[25];
 
 
 int main(){
+	char* command = (char*)malloc(255);
+	char* X= (char*)malloc(255);
+	char* envarg = (char*)malloc(255); 
+
 	//	srand(time(NULL));
 	//	printArray(addr_array);
 	//	printArray2(files_array);
@@ -51,20 +55,91 @@ int main(){
 	//cse320_fclose("A");
 	//	cse320_fclose("B");
 	//printArray2(files_array); 
-	//cse320_settimer(1);
 
-	cse320_settimer(1);
+	/*
+	   cse320_settimer(1);
 
-	cse320_fork();
-	printf("-----------------\n");
-	cse320_fork();
-	printf("-----------------\n"); 
-	cse320_fork();
-	printf("-----------------\n"); 
-	sleep(10);
-
+	   cse320_fork();
+	   printf("-----------------\n");
+	   cse320_fork();
+	   printf("-----------------\n"); 
+	   cse320_fork();
+	   printf("-----------------\n"); 
+	   sleep(10);
+	 */
 	//system("ps -eo pid,ppid,stat,cmd");
+
+prompt:
+	printf("Type your command.\n");
+
+	scanf("%s", command);
+
+	if(strstr(command, "run")!=NULL){
+		scanf(" %s" , X) ;
+
+
+		char *argv[] = {X, NULL};
+		//char *envp[] = { "PATH=/bin:/sbin", NULL };   
+		pid_t pid= getpid();
+		int status;
+		printf("%s\n", argv[0]);
+
+
+
+char *envp[] = {NULL};
+		if(pid = fork()==0){
+	//		if(execlp(X, X,(char *)NULL)<0){
+//if(execvp(argv[0], argv)<0){
+if(execv(argv[0], argv)<0){			
+		printf("ERROR IN EXECVE11\n");
+					exit(0);
+				}
+
+/*
+
+			} else {
+				printf("------PATH\n");
+				char* argv[]= {X, NULL};
+				if( execv(argv[0], argv)<0 ){
+					printf("ERROR IN EXECV\n");
+
+				}
+
+			}
+
+*/		} else { 
+			if(waitpid(pid, &status, 0)<0){
+				printf("ERROR IN WAITPID\n");
+				exit(0);
+
+			}
+
+
+		}
+	} else if (strcmp(command, "help")==0){
+
+		printf("HELP HERE\n");
+
+
+	}else if (strcmp(command, "exit")==0){
+
+
+
+		exit(0);
+	} else {
+		printf("Unknown Command.\n");
+
+		goto prompt;
+	}
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -242,8 +317,8 @@ void cse320_fork(){
 	if(pid==0){ // child
 		printf("CHILd HERE\n");	
 		exit(0);
-	
-} else { // parent
+
+	} else { // parent
 
 		if(!reapflag){
 			signal(SIGALRM, cse320_reap);
