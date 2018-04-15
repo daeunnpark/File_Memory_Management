@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
+extern char **environ;
 int addr_count=0;
 int files_count;
 int N=5;
@@ -78,42 +79,29 @@ prompt:
 		scanf(" %s" , X) ;
 
 
-		char *argv[] = {X, NULL};
-		//char *envp[] = { "PATH=/bin:/sbin", NULL };   
+		char *args[] = {X, NULL};
+		char *env_args[] = { "PATH=/bin", "USER=me", NULL }; 
 		pid_t pid= getpid();
 		int status;
-		printf("%s\n", argv[0]);
 
-
-
-char *envp[] = {NULL};
 		if(pid = fork()==0){
-	//		if(execlp(X, X,(char *)NULL)<0){
-//if(execvp(argv[0], argv)<0){
-if(execv(argv[0], argv)<0){			
-		printf("ERROR IN EXECVE11\n");
-					exit(0);
-				}
+			execve(args[0], args, env_args);
+			//fprintf(stderr, "Oops!\n");
 
-/*
+			environ = env_args;
+			execvp(args[0], &args[0]);
+			//fprintf(stderr, "Oops again!\n");
 
-			} else {
-				printf("------PATH\n");
-				char* argv[]= {X, NULL};
-				if( execv(argv[0], argv)<0 ){
-					printf("ERROR IN EXECV\n");
 
-				}
 
-			}
-
-*/		} else { 
+		} else { 
 			if(waitpid(pid, &status, 0)<0){
 				printf("ERROR IN WAITPID\n");
 				exit(0);
 
 			}
-
+			//printf("ggr\n");
+		//	system("ps -eo pid,ppid,stat,cmd");
 
 		}
 	} else if (strcmp(command, "help")==0){
@@ -122,8 +110,6 @@ if(execv(argv[0], argv)<0){
 
 
 	}else if (strcmp(command, "exit")==0){
-
-
 
 		exit(0);
 	} else {
