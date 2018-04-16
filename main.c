@@ -1,5 +1,6 @@
 #include "cse320_functions.h"
 
+#include <semaphore.h>
 #include <unistd.h>
 #include "errno.h"
 #include <stdio.h>
@@ -15,6 +16,8 @@ int addr_count=0;
 int files_count;
 int N=5;
 int reapflag=0;
+sem_t mutex;
+
 struct addr_in_use{
 
 	void* addr;
@@ -41,7 +44,7 @@ struct files_in_use files_array[25];
 int main(){
 	char* command = (char*)malloc(255);
 	char* X= (char*)malloc(255);
-	char* envarg = (char*)malloc(255); 
+	//char* envarg = (char*)malloc(255); 
 
 	//	srand(time(NULL));
 	//	printArray(addr_array);
@@ -70,6 +73,9 @@ int main(){
 	 */
 	//system("ps -eo pid,ppid,stat,cmd");
 
+	sem_init(&mutex, 0, 1);
+
+
 prompt:
 	printf("Type your command.\n");
 
@@ -78,13 +84,17 @@ prompt:
 	if(strstr(command, "run")!=NULL){
 		scanf(" %s" , X) ;
 
-
 		char *args[] = {X, NULL};
 		char *env_args[] = { "PATH=/bin", "USER=me", NULL }; 
 		pid_t pid= getpid();
 		int status;
 
+
+		sem_wait(&mutex);
+
+
 		if(pid = fork()==0){
+
 			execve(args[0], args, env_args);
 			//fprintf(stderr, "Oops!\n");
 
@@ -93,24 +103,27 @@ prompt:
 			//fprintf(stderr, "Oops again!\n");
 
 
-
 		} else { 
+
 			if(waitpid(pid, &status, 0)<0){
 				printf("ERROR IN WAITPID\n");
 				exit(0);
 
 			}
-			//printf("ggr\n");
-		//	system("ps -eo pid,ppid,stat,cmd");
 
+			sem_post(&mutex);		
+			//system("ps -eo pid,ppid,stat,cmd");
+
+			goto prompt;
 		}
 	} else if (strcmp(command, "help")==0){
 
 		printf("HELP HERE\n");
 
-
+		goto prompt;  
 	}else if (strcmp(command, "exit")==0){
-
+		free(command);
+		free(X);
 		exit(0);
 	} else {
 		printf("Unknown Command.\n");
