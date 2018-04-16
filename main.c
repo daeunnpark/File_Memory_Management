@@ -41,36 +41,36 @@ void printArray2(struct files_in_use* ptr);
 struct addr_in_use addr_array[25];
 struct files_in_use files_array[25];
 /*
-char** inputToArgs(char* command){
+   char** inputToArgs(char* command){
 
-	// command = run A 1 2 3
-	char *  p    = strtok (command, " "); // ignore run
-	p = strtok(NULL, " ");
-	int n_spaces = 0, i;
+// command = run A 1 2 3
+char *  p    = strtok (command, " "); // ignore run
+p = strtok(NULL, " ");
+int n_spaces = 0, i;
 
-	while (p) {
-		args = realloc (args, sizeof (char*) * ++n_spaces);
+while (p) {
+args = realloc (args, sizeof (char*) * ++n_spaces);
 
-		if (args == NULL){
-			exit (-1); 
-		}
-		args[n_spaces-1] = p;
+if (args == NULL){
+exit (-1); 
+}
+args[n_spaces-1] = p;
 
-		p = strtok (NULL, " ");
-	}
+p = strtok (NULL, " ");
+}
 
 
-	args = realloc (args, sizeof (char*) * (n_spaces+1));
-	args[n_spaces] = 0;
+args = realloc (args, sizeof (char*) * (n_spaces+1));
+args[n_spaces] = 0;
 
-	for (i = 0; i < (n_spaces+1); ++i)
-		printf ("res[%d] = %s\n", i, args[i]);
+for (i = 0; i < (n_spaces+1); ++i)
+printf ("res[%d] = %s\n", i, args[i]);
 
-	return args;
+return args;
 
 }
 
-*/
+ */
 
 int main(){
 	char* command = (char*)malloc(255);
@@ -110,61 +110,40 @@ prompt:
 	printf("Type your command.\n");
 
 	fgets(command, 100, stdin);
+	command[strcspn(command, "\n")] = 0;// REMOVE \n!!!!!
 
 	if(strstr(command, "run")!=NULL){
-		printf("%s\n", command);
+		int i = 0;
+		char *p = strtok (command, " ");
+		p = strtok (NULL, " ");  
+		char *args[6];
+
+		while (p != NULL) {
+			args[i++] = p;			
+			p = strtok (NULL, " ");
+		}
+		args[i]=NULL;
 
 
-  int i = 0;
-    char *p = strtok (command, " ");
-p = strtok (NULL, " ");
-    //char *args[6];// = {NULL, NULL, NULL, NULL, NULL, NULL};
-
-    while (p != NULL)
-    {
-        args[i++] = p;
-        p = strtok (NULL, " ");
-    }
-
-i++;
-args[i] = NULL;
-printf("THIS IS I: %d\n", i);
-	for (int j = 0; j < i; ++j)
-		printf ("res[%d] = %s\n", j, args[j]);
-
-
-printf("gggggr\n");
-
-
-
-char* args[] = {"ls", NULL};
-	for (int o = 0; o < 2; ++o)
-		printf ("args[%d] = %s\n", o, args[o]);
-
-
-		//		args = inputToArgs(command);
+		//		char* args[] = {"ls", NULL};
 		char *env_args[] = { "PATH=/bin", "USER=me", NULL }; 
-		
-	for (int k = 0; k < 3; ++k)
-		printf ("env[%d] = %s\n", k, env_args[k]);
-
-
-
-pid_t pid= getpid();
+		pid_t pid= getpid();
 		int status;
 		sigset_t mask;
 		sigfillset(&mask);
 		sigprocmask(SIG_SETMASK, &mask, NULL);
 
-		printf("RIGHT BEFORE\n");
 		//	sem_wait(&mutex);
 
 		if(pid = fork()==0){
+		
+
 			execve(args[0], args, env_args);
 			fprintf(stderr, "Oops!\n");
 
+
 			environ = env_args;
-			execvp(args[0], &args[0]);
+			execvp(args[0], args);
 			fprintf(stderr, "Oops again!\n");
 
 
@@ -180,12 +159,14 @@ pid_t pid= getpid();
 			sigprocmask(SIG_SETMASK, &mask, NULL);
 			//sem_post(&mutex);		
 			//system("ps -eo pid,ppid,stat,cmd");
-		//	free(args);
+			//	free(args);
 			goto prompt;
+
 		}
 	} else if (strstr(command, "help")!=NULL){
 
-		printf("HELP HERE\n");
+printf("run X	-- will run executable X. X can be application name, full path to application, or relative path to application.\n");
+printf("quit	-- will exit the program.\n");
 
 		goto prompt;  
 	}else if (strstr(command, "exit")!=NULL){
