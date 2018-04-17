@@ -72,6 +72,17 @@ return args;
 
  */
 
+
+static void handler (int bar)
+{
+	printf("handled\n");
+	/*some code here. In your case, nothing*/
+}
+
+
+
+
+
 int main(){
 	char* command = (char*)malloc(255);
 	char* X= (char*)malloc(255);
@@ -110,7 +121,8 @@ prompt:
 	printf("Type your command.\n");
 
 	fgets(command, 100, stdin);
-	command[strcspn(command, "\n")] = 0;// REMOVE \n!!!!!
+	// REMOVE \n!!!!! 
+	command[strcspn(command, "\n")] = 0;
 
 	if(strstr(command, "run")!=NULL){
 		int i = 0;
@@ -130,13 +142,15 @@ prompt:
 		pid_t pid= getpid();
 		int status;
 		sigset_t mask;
+		// Block any Signal	
 		sigfillset(&mask);
 		sigprocmask(SIG_SETMASK, &mask, NULL);
-
 		//	sem_wait(&mutex);
 
 		if(pid = fork()==0){
-		
+			// Unblock for Child
+			sigemptyset(&mask);
+			sigprocmask(SIG_SETMASK, &mask, NULL);
 
 			execve(args[0], args, env_args);
 			fprintf(stderr, "Oops!\n");
@@ -148,6 +162,10 @@ prompt:
 
 
 		} else { 
+			// block
+			sigfillset(&mask);
+			sigprocmask(SIG_SETMASK, &mask, NULL);
+
 
 			if(waitpid(pid, &status, 0)<0){
 				printf("ERROR IN WAITPID\n");
@@ -155,8 +173,27 @@ prompt:
 
 			}
 
+
+			// Install signal handler to ignore pending signals from children 
+			int k;
+			for(k = 1; k <=31 ; k++)
+			{
+				signal(k,handler);
+			}
+
+			// unblock
 			sigemptyset(&mask);
 			sigprocmask(SIG_SETMASK, &mask, NULL);
+
+			// reset handler for parents
+			int p;
+			for(p = 1; p <=31 ; p++)
+			{
+				signal(p,SIG_DFL);
+			}
+
+
+
 			//sem_post(&mutex);		
 			//system("ps -eo pid,ppid,stat,cmd");
 			//	free(args);
@@ -165,8 +202,8 @@ prompt:
 		}
 	} else if (strstr(command, "help")!=NULL){
 
-printf("run X	-- will run executable X. X can be application name, full path to application, or relative path to application.\n");
-printf("quit	-- will exit the program.\n");
+		printf("run X	-- will run executable X. X can be application name, full path to application, or relative path to application.\n");
+		printf("quit	-- will exit the program.\n");
 
 		goto prompt;  
 	}else if (strstr(command, "exit")!=NULL){
@@ -179,13 +216,6 @@ printf("quit	-- will exit the program.\n");
 		goto prompt;
 	}
 }
-
-
-
-
-
-
-
 
 
 
