@@ -31,7 +31,8 @@ struct files_in_use{
 	char* filename;
 	int ref_count;// = 0;
 	FILE *fptr;
-	int closed; // =0
+	int fd;	
+	//int closed; // =0
 };
 
 
@@ -55,36 +56,53 @@ int main(){
 	char* command = (char*)malloc(100* sizeof(char*));
 	char* X= (char*)malloc(100* sizeof(char*));
 	//printArray1(addr_array);
-	printArray2(files_array);
-	/*
-	   void *p = cse320_malloc(40);
+	//	printArray2(files_array);
+	/*	
+		void *p = cse320_malloc(40);
 
-	   for(int j=0; j<23; j++){
-	   cse320_malloc(30); 
+		for(int j=0; j<23; j++){
+		cse320_malloc(30); 
 
-	   }
+		}
 
-	   cse320_free(p);
-	   cse320_free(p);
+		cse320_free(p);
+	 */	//   cse320_free(p);
 	//	printArray1(addr_array);
 	//cse320_free(cse320_malloc(200));
-	printArray1(addr_array); 	
+	//	printArray1(addr_array); 	
 
 	//	cse320_clean();
 	//printArray1(addr_array);   
-	cse320_malloc(60);
+	//	cse320_malloc(60);
 	//	printf("addr2: %p\n",cse320_malloc(60));
-	printArray1(addr_array);
+	//	printArray1(addr_array);
 	//cse320_malloc(1);
 
-	 *///	cse320_clean();
+	//	cse320_clean();
 
-	cse320_fopen("A");
-	//cse320_fopen("A");
-	printArray2(files_array); 	
+	printf("opened: %d\n",fileno(cse320_fopen("A")));
+	printf("opened: %d\n", fileno(cse320_fopen("A"))); 
 	cse320_fclose("A");
-	printArray2(files_array); 
-	cse320_clean();
+	//printArray2(files_array); 	
+	cse320_fclose("A");
+	cse320_fopen("B");
+	cse320_fopen("C"); 
+	cse320_fopen("D"); 
+	cse320_fopen("E"); 
+	//	cse320_fclose("A");
+
+	printf("opened: %d\n",fileno(cse320_fopen("G")));
+
+	cse320_fclose("C");
+	printf("opened: %d\n",fileno(cse320_fopen("Z"))); 
+cse320_fclose("D");
+cse320_fopen("Q");
+
+cse320_fclose("E");
+cse320_fopen("RR");
+cse320_fclose("gg");
+//	printArray2(files_array); 
+	//   cse320_clean();
 
 	/*
 	   cse320_fopen("RR"); 	
@@ -263,16 +281,19 @@ prompt:
 			free(&addr_array[q]); 
 			}
 			}
-*/
-			for(q=0; q<5; q++){
+		 */
+
+		/*	for(q=0; q<5; q++){
 			if(files_array[q].filename !=NULL){
 			free(files_array[q].filename); 
 			}
 			}
-
+		 */
 
 		free(command);
 		free(X);
+		cse320_clean();
+		//printArray2(files_array);	
 		exit(0);
 	} else {
 		printf("Unknown Command.\n");
@@ -387,22 +408,33 @@ void cse320_clean(){
 	}
 
 	for(j=0; j<5; j++){
-		if( files_array[j].filename!= NULL && files_array[j].ref_count>0 ){
-			printf("nono\n");		
-			close(fileno(files_array[j].fptr));
-			//free(files_array[j].filename);
-			free(files_array[j].fptr);			
-			files_array[j].ref_count=0;
-		}
-	}
+		if( files_array[j].filename!= NULL){
+			if( files_array[j].ref_count>0 ){
+				printf("nono\n");		
+				//fclose(files_array[j].fptr);
+				printf("fileno: %d\n", fileno(files_array[j].fptr));
 
+
+				printf("22 SHOULD BE 0: %d\n",close(fileno(files_array[j].fptr)));	
+				printf("22 SHOULD BE 0: %d\n",fclose((files_array[j].fptr)));	
+
+
+				files_array[j].ref_count=0;
+			}
+			// for all
+			free(files_array[j].filename);
+			//free(files_array[j].fptr);  		
+
+		}	
+	}
 }
+
 
 
 
 FILE *cse320_fopen(char *filename){
 	int o,l,m;
-	FILE *ptr = NULL;
+	//	FILE *ptr = NULL;
 	files_count++;
 	printf("opend\n");
 
@@ -413,9 +445,9 @@ FILE *cse320_fopen(char *filename){
 		if(files_array[o].filename!=NULL){
 			if(strcmp(filename,files_array[o].filename) ==0 ){
 				files_array[o].ref_count++;					
-				files_count--;			
+				
+files_count--;
 				return files_array[o].fptr;
-
 			}
 
 		}
@@ -439,9 +471,11 @@ FILE *cse320_fopen(char *filename){
 				strcpy(files_array[l].filename, filename);
 				printf("TTHISSS\n");
 				files_array[l].ref_count++;
-				files_array[l].fptr = malloc(sizeof(FILE*));
-				files_array[l].fptr = fopen(filename, "r");
-				return files_array[l].fptr;
+
+				FILE* fp = fopen(filename, "w");
+				files_array[l].fptr = fdopen (dup (fileno (fp)), "w");  			
+				fclose(fp);
+				return files_array[l].fptr;			
 			}
 
 		}
@@ -454,9 +488,11 @@ FILE *cse320_fopen(char *filename){
 				if( files_array[m].ref_count==0 ){
 					strcpy(files_array[m].filename, filename);
 					files_array[m].ref_count ++;
-					files_array[m].fptr=fopen(filename, "r");
 
-					return files_array[m].fptr;
+					FILE* fp = fopen(filename, "w");				
+					files_array[m].fptr = fdopen (dup (fileno (fp)), "w");  			
+					fclose(fp);
+					return files_array[m].fptr; 
 				}
 
 			}
@@ -484,7 +520,7 @@ exit(-1);
 
 void cse320_fclose(char* filename){
 	int k;
-
+	printf("fclose\n");
 	for(k=0; k<5; k++){
 		if(files_array[k].filename!=NULL){
 			if(strcmp(filename,files_array[k].filename) ==0){
@@ -500,10 +536,10 @@ void cse320_fclose(char* filename){
 						printf("h1h1h1\n");					
 						files_count--; // file closed completely
 
-						printf("SHOULD BE 0: %d\n",close(fileno(files_array[k].fptr)));					
-					//	free(files_array[k].filename);  
-						free(files_array[k].fptr);			
-						//	break;
+						printf("SHOULD BE 0: %d\n",close(fileno(files_array[k].fptr)));	
+
+						printf("SHOULD BE 0:  %d\n",fclose(files_array[k].fptr));
+						//free(files_array[k].fptr);
 					}	
 					break;			
 				}
@@ -594,8 +630,10 @@ void printArray2(struct files_in_use* ptr){
 	for(j=0; j<5;j++){
 		//	printf("At %d   count: %d\n  F: %d\n",j+1, (ptr+j)->ref_count,fileno((ptr+j)->fptr) );
 		printf("At %d filename :%s, count: %d, FP: %p ",j+1, (ptr+j)->filename, (ptr+j)->ref_count, (ptr+j)->fptr);
+
+		//	printf("At %d filename :%s, count: %d, FP: %d ",j+1, (ptr+j)->filename, (ptr+j)->ref_count, (ptr+j)->fd);
 		if((ptr+j)->fptr!=NULL){
-			printf("FD: %d\n", fileno((ptr+j)->fptr));
+			printf("FD: %d\n",fileno((ptr+j)->fptr));
 
 		}
 		else {
