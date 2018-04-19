@@ -13,11 +13,10 @@
 
 extern char **environ;
 int addr_count=0;
-int files_count=0;
+int files_count=0; // opened files
 int N=5;
 int reapflag=0;
 sem_t mutex;
-//char **args;
 
 struct addr_in_use{
 
@@ -40,7 +39,7 @@ void printArray1(struct addr_in_use* ptr);
 void printArray2(struct files_in_use* ptr);
 
 struct addr_in_use addr_array[25];
-struct files_in_use files_array[25];
+struct files_in_use files_array[5];
 
 static void handler (int bar)
 {
@@ -53,27 +52,30 @@ static void handler (int bar)
 
 
 int main(){
-	char* command = (char*)malloc(255);
-	char* X= (char*)malloc(255);
+	char* command = (char*)malloc(100* sizeof(char*));
+	char* X= (char*)malloc(100* sizeof(char*));
 	//printArray1(addr_array);
-
-
-	int p;
-
 	//printArray2(files_array);
+/*
+	void *p = cse320_malloc(40);
+	
+	   for(int j=0; j<23; j++){
+	   cse320_malloc(30); 
 
-	/*	
-		void * p = cse320_malloc(50);
-		printf("addr: %p\n", p);
-		for(int j=0; j<24; j++){
-		cse320_malloc(30); 
+	   }
+	 	
+	cse320_free(p);
+cse320_free(p);
+	//	printArray1(addr_array);
+	//cse320_free(cse320_malloc(200));
+		printArray1(addr_array); 	
 
-		}
-		cse320_free(p);
-		printArray1(addr_array); 
-	//dcse320_malloc(60);
-	printf("addr2: %p\n",cse320_malloc(60));
-	printArray1(addr_array);
+	//	cse320_clean();
+	//printArray1(addr_array);   
+	cse320_malloc(60);
+	//	printf("addr2: %p\n",cse320_malloc(60));
+		printArray1(addr_array);
+	//cse320_malloc(1);
 
 	//	cse320_clean();
 	//	cse320_fopen("A");
@@ -81,16 +83,17 @@ int main(){
 	//cse320_fclose("A");
 	//	cse320_fclose("B");
 	//printArray2(files_array); 
+*/
+	/*
+	   cse320_settimer(1);
 
-	cse320_settimer(1);
-
-	cse320_fork();
-	printf("-----------------\n");
-	cse320_fork();
-	printf("-----------------\n"); 
-	cse320_fork();
-	printf("-----------------\n"); 
-	sleep(10);
+	   cse320_fork();
+	   printf("-----------------\n");
+	   cse320_fork();
+	   printf("-----------------\n"); 
+	   cse320_fork();
+	   printf("-----------------\n"); 
+	   sleep(10);
 	 */
 	//system("ps -eo pid,ppid,stat,cmd");
 
@@ -98,24 +101,68 @@ int main(){
 
 	//	printArray2(files_array);  
 
-	for(int n=0; n<25; n++){
+	/*	
+		for(int n=0; n<25; n++){
 		cse320_fopen("A");
-	}
+		}
 
 
-	for(int n=0; n<25; n++){
+		for(int n=0; n<25; n++){
 		cse320_fclose("A");
-	}
+		}
+	 */
 
-	cse320_fopen("B");
-cse320_fopen("B");
+	/*
+	   cse320_fopen("B");
+	   cse320_fopen("B");
 
-	cse320_fclose("B");
-cse320_fclose("B");
+	   cse320_fclose("B");
+	   cse320_fclose("B");
+	 */
+	//	printArray2(files_array);  
+	//	printf("Files count: %d\n", files_count); 
 
-	printArray2(files_array);  
+
+
+	/*
+	   cse320_fopen("RR"); 	
+
+	   printArray2(files_array); 
+	   printf("gggg\n");
+	   cse320_fclose("RR");
+	   cse320_fopen("A");
+	   cse320_fopen("A");
+	   cse320_fclose("A");
+	   cse320_fclose("A");
+	   printf("kkk\n"); 
+
+	   printArray2(files_array); 
+	 */
+
+	/*
+	   printf("00Files count: %d\n", files_count);  
+	   cse320_fopen("D");
+	   cse320_fopen("E");
+	   printArray2(files_array);   
+	   printf("Files counti22uuuu2: %d\n", files_count);  	
+	   cse320_fopen("F");
+	   printArray2(files_array); 
+	   printf("Files counti222: %d\n", files_count);  
+	   cse320_fopen("G");
+	   printf("11Files count: %d\n", files_count); 
+	   printArray2(files_array);  
+	//cse320_fopen("E");
+	printArray2(files_array);   
+
 	printf("Files count: %d\n", files_count); 
-	//cse320_fclose("A"); 	
+	cse320_fopen("H");
+
+
+	 */
+
+
+
+
 
 
 prompt:
@@ -154,12 +201,12 @@ prompt:
 			sigprocmask(SIG_SETMASK, &mask, NULL);
 
 			execve(args[0], args, env_args);
-			fprintf(stderr, "Oops!\n");
+			//fprintf(stderr, "Oops!\n");
 
 
 			environ = env_args;
 			execvp(args[0], args);
-			fprintf(stderr, "Oops again!\n");
+			fprintf(stderr, "Error in running applcation.\n");
 
 
 		} else { 
@@ -201,13 +248,31 @@ prompt:
 			goto prompt;
 
 		}
-	} else if (strstr(command, "help")!=NULL){
+	} else if (strcmp(command, "help")==0){
 
 		printf("run X	-- will run executable X. X can be application name, full path to application, or relative path to application.\n");
 		printf("quit	-- will exit the program.\n");
 
 		goto prompt;  
-	}else if (strstr(command, "exit")!=NULL){
+	}else if (strcmp(command, "exit")==0){
+		int q;
+		/*	
+			for(q=0; q<25; q++){
+			if(addr_array[q].addr!=NULL){
+			free(&addr_array[q]); 
+			}
+			}
+
+			for(q=0; q<5; q++){
+			if(files_array[q].filename !=NULL){
+			free(&files_array[q]); 
+			}
+			}
+
+
+		 */
+
+
 		free(command);
 		free(X);
 		exit(0);
@@ -225,25 +290,49 @@ prompt:
 
 void *cse320_malloc(size_t size){
 	printf("malloc called\n");
-	int k;
-	addr_count++; 
-	//printf("44addr count : %d\n", addr_count);  
-	if(addr_count<26){
+	int k,j;
+	//addr_count++; 
+	if(addr_count<25){
 		for(k=0; k<25; k++){   
-			if( addr_array[k].ref_count==0 ){ 
-				void *addr = malloc(size);
-				struct addr_in_use *new_addr = malloc(sizeof(struct addr_in_use)); 
-
-				new_addr->addr = addr;
+			if( addr_array[k].addr==NULL && addr_array[k].ref_count==0 ){ 
+				//void *addr = malloc(size);
+				//struct addr_in_use *new_addr = malloc(sizeof(struct addr_in_use)); 
+/*				
+new_addr->addr= malloc(size);
 				new_addr->ref_count++;
 				addr_array[k]= *new_addr;
+*/
+addr_array[k].addr = malloc(size);
+addr_array[k].ref_count++;
 
-				return addr;
+				addr_count++;
+				return addr_array[k].addr;
 			}
+		}
+
+		if(k==25){
+
+			for(j=0; j<25; j++){// replace it
+
+				if( addr_array[j].ref_count==0 ){ 
+					//	void *addr = malloc(size);			
+					addr_array[j].addr =malloc(size);// malloc(sizeof(void*));
+					addr_array[j].ref_count++;
+					addr_count++;
+					return addr_array[j].addr;
+				}
+
+
+
+
+
+
+			}
+
 		}
 	} else {
 		printf("Not enough memory\n");
-		addr_count--;	
+		//addr_count--;	
 		exit(-1);
 
 	}
@@ -261,10 +350,8 @@ int cse320_free(void *ptr){
 					errno=EADDRNOTAVAIL;
 					exit(-1);
 				} else{// >0
-					//printf("freed:!!\n");		
 					free(addr_array[k].addr);				
 					//	addr_array[k].addr=NULL; NONONO					
-					//free(ptr);					
 					addr_array[k].ref_count--;
 					addr_count--;			
 					break;
@@ -291,80 +378,134 @@ void cse320_clean(){
 	int j;
 
 	for(j=0; j<25; j++){
-		if(addr_array[j].ref_count>0){
-			addr_array[j].addr= NULL;
+		if( addr_array[j].addr !=NULL){
+//printf("once\n"); 
+			if(addr_array[j].ref_count>0){
+				free(addr_array[j].addr);//= NULL;
+//printf("never\n"); 
+addr_array[j].ref_count--;	
+				//free(addr_array[j]);		
+			}
+			//free(&addr_array[j]);
 		}
 	}
-
-
-	for(j=0; j<25; j++){
-		if(files_array[j].ref_count>0){
-			files_array[j].filename= NULL;
+/*
+	for(j=0; j<5; j++){
+		if( files_array[j].filename!= NULL && files_array[j].ref_count>0){
+			free(files_array[j].filename);
+			free(files_array[j].fptr);
+			//	free(&files_array[j]);
 		}
 	}
-
+*/
 }
 
 
 
 FILE *cse320_fopen(char *filename){
-	int o,l;
+	int o,l,m;
 	FILE *ptr = NULL;
-	//	files_count++;
+	files_count++;
 	printf("opend\n");
-	if(files_count<25){
 
-		//printf("F1: %d\n", fileno(ptr)); 
-		for(o=0; o<25;o++){
-			if(files_array[o].filename!=NULL){
-				if(strcmp(filename,files_array[o].filename) ==0 ){
-					files_array[o].ref_count++;					
-					//files_array[o].ref_count = files_array[o].ref_count+1; 
-files_array[o].closed = 0; // open					
-return files_array[o].fptr;
 
-				}
+	//	if(files_count<5){// 25
+
+	// Already exist in files_array
+	for(o=0; o<5;o++){
+		if(files_array[o].filename!=NULL){
+			if(strcmp(filename,files_array[o].filename) ==0 ){
+				files_array[o].ref_count++;					
+				//files_array[o].ref_count = files_array[o].ref_count+1; 
+				files_array[o].closed = 0; // open		
+				files_count--;			
+				return files_array[o].fptr;
 
 			}
 
 		}
 
-		// not in the array, opening for the first time
-		if(o==25){
-			for(l=0; l<25; l++){
-				if(files_array[l].ref_count==0){
-					struct files_in_use* new_file = malloc(sizeof(struct files_in_use));
-					new_file->filename = malloc(sizeof(1000));
-					strcpy(new_file->filename, filename);
+	}
 
-					new_file->ref_count = (new_file->ref_count)+1;
+	if(files_count>5) {
+		printf("Too many opened files\n");
+		files_count--;	
+		exit(-1);
 
-					ptr = fopen(filename, "r");
-					printf("HH\n");
-					new_file->fptr = malloc(1000);
-					(new_file->fptr)= (ptr);
-					printf("F1: %d\n",fileno(ptr));
-					printf("F2: %d\n",fileno(new_file->fptr));
-					files_array[l]=*new_file;
-					files_array[l].closed = 0;
-					files_count++;
-					return files_array[l].fptr;
-				}
+	}	
+	// not in the array, opening for the first time, empty spot
+	if(o==5){
+		for(l=0; l<5; l++){
 
-			}	
+			if(files_array[l].filename ==NULL && files_array[l].ref_count==0){
+				struct files_in_use* new_file = malloc(sizeof(struct files_in_use));
+				new_file->filename = malloc(100*sizeof(char*));
+				strcpy(new_file->filename, filename);
+
+				new_file->ref_count = (new_file->ref_count)+1;
+
+				ptr = fopen(filename, "r");
+				new_file->fptr = malloc(sizeof(FILE*));
+				(new_file->fptr)= (ptr);
+
+				//	printf("F1: %d\n",fileno(ptr));
+				//					printf("F2: %d\n",fileno(new_file->fptr));
+				files_array[l]=*new_file;
+				files_array[l].closed = 0;
+				//files_count++;
+				return files_array[l].fptr;
+			}
+
 		}
 
 
+		if(l==5){// array is full, replace ref_count =0 spot
 
-	} else {
+			for(m=0; m<5; m++){
 
-		printf("Too many opened files\n");
-		//files_count--;	
-		exit(-1);
+				if( files_array[m].ref_count==0 ){
+					//struct files_in_use* new_file = malloc(sizeof(struct files_in_use));
+					//new_file->filename = malloc(sizeof(1000));
+					//free(files_array[m].filename);
+					//	free(files_array[m].fptr);
 
+					files_array[m].filename = malloc(100*sizeof(char*)); 
+					files_array[m].fptr = malloc(sizeof(FILE*));
+
+					strcpy(files_array[m].filename, filename);
+
+					files_array[m].ref_count = (files_array[m].ref_count)+1;
+
+					ptr = fopen(filename, "r");
+					//new_file->fptr = malloc(1000);
+					files_array[m].fptr=ptr;
+
+					//	printf("F1: %d\n",fileno(ptr));
+					//					printf("F2: %d\n",fileno(new_file->fptr));
+					//ifiles_array[m]=*new_file;
+					files_array[m].closed = 0;
+					//	files_count++;
+					return files_array[m].fptr;
+				}
+
+			}
+
+
+
+		}	
 	}
 
 
+	/*
+	   } else {
+
+	   printf("Too many opened files\n");
+	//files_count--;	
+	exit(-1);
+
+	}
+
+	 */
 }
 
 
@@ -373,7 +514,7 @@ return files_array[o].fptr;
 void cse320_fclose(char* filename){
 	int k;
 
-	for(k=0; k<25; k++){
+	for(k=0; k<5; k++){
 		if(files_array[k].filename!=NULL){
 			if(strcmp(filename,files_array[k].filename) ==0){
 				if(files_array[k].ref_count==0){
@@ -381,31 +522,26 @@ void cse320_fclose(char* filename){
 					errno=EINVAL;
 					exit(-1);
 				} else {// >0
-					if(files_array[k].closed ==0){//open					
-						printf("SHOULD BE 0: %d\n",close(fileno(files_array[k].fptr)));					
-						files_array[k].closed=1;
-					//	files_count--;				
-					}
-
 
 					files_array[k].ref_count--;
 
-if(files_array[k].ref_count==0){
-files_count--; // file closed completely
-}
-					printf("REF at %d : %d\n", k, files_array[k].ref_count);
-					break;
+					if(files_array[k].ref_count==0){
+						files_count--; // file closed completely
+						printf("SHOULD BE 0: %d\n",close(fileno(files_array[k].fptr)));					
+						free(files_array[k].filename);  
+						free(files_array[k].fptr);			
+						break;
+					}	
 				}
 			}
 
+			//break;
 		}
-
-
-
 	}
 
 
-	if(k==25){ // not found
+
+	if(k==5){ // not found
 		printf("Close: Illegal filename\n"); 
 		errno=ENOENT;
 		exit(-1); 
