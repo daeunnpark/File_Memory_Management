@@ -35,7 +35,7 @@ void reset(struct addr_in_use* addr_array2, struct files_in_use* files_array2){
 
 }
 
-void *cse320_malloc ( size_t size){ 
+void *cse320_malloc (size_t size){ 
 
 	int k,j;
 	if(addr_count<25){
@@ -200,7 +200,8 @@ FILE *cse320_fopen(char *filename){
 
 void cse320_fclose(char* filename){
 
-	int k;
+	int k, flag;
+	flag= 0;
 	for(k=0; k<5; k++){
 		if(files_array[k].filename!=NULL){
 			if(strcmp(filename,files_array[k].filename) ==0){
@@ -221,17 +222,16 @@ void cse320_fclose(char* filename){
 						//fclose(files_array[k].fptr);
 						printf("SHOULD BE 0: %d\n",close(fileno(files_array[k].fptr)));	
 						printf("SHOULD BE -1:  %d\n",fclose(files_array[k].fptr));
-					}	
-					break;			
+					}
+					return;
+					//break;			
 				}
 			}
 
 		}
 	}
 
-
-
-	if(k==5){ // not found
+	if( k==5){ // not found
 		printf("Close: Illegal filename\n"); 
 
 		cse320_clean();
@@ -267,12 +267,12 @@ void cse320_clean(){
 	for(j=0; j<5; j++){
 		if( files_array[j].filename!= NULL){
 			if( files_array[j].ref_count>0 ){
-				printf("nono\n");		
-				//	close(fileno(files_array[j].fptr));			
-				//	fclose(files_array[j].fptr);
+				//	printf("nono\n");		
+				close(fileno(files_array[j].fptr));			
+				fclose(files_array[j].fptr);
 
-				printf("2 SHOULD BE 0: %d\n",close(fileno(files_array[j].fptr)));	
-				printf("2 SHOULD BE -1: %d\n",fclose((files_array[j].fptr)));	
+				//printf("2 SHOULD BE 0: %d\n",close(fileno(files_array[j].fptr)));	
+				//	printf("2 SHOULD BE -1: %d\n",fclose((files_array[j].fptr)));	
 
 
 				files_array[j].ref_count=0;
