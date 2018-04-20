@@ -36,14 +36,15 @@ Read below description for each function in `"cse320\_functions.h"` for part2 an
 ## Struct/Function Description
 
 `void cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_array2)` <br /> 
-Resets addr\_in\_use array and files\_in\_use array. Must be called before any function call.<br />  
+Resets addr\_in\_use array and files\_in\_use array. Must be called before any function call. 
 &nbsp;
-&nbsp;
+
 `void *cse320_malloc(size_t size)` <br />
 Takes a size of type size\_t and allocate a block of memory that is size bytes large. If the requested memory can be allocated, a pointer of type void\* is returned to the beginning of the memory block.  
 &nbsp;
 
-Besides, the number of memory block is limited to 25. If the user tries to allocate beyond the limit, the function prints the message "Not enough memory" and terminates with exit value -1.<br />  
+Besides, the number of memory block is limited to 25. If the user tries to allocate beyond the limit, the function prints the message "Not enough memory" and terminates with exit value -1. 
+&nbsp;
 
 `void cse320_free(void* ptr)` <br />
 Frees the memory space pointed to by ptr, which must have been returned by a previous call to `cse320_malloc()`.
