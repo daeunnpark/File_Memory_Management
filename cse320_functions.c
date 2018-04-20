@@ -12,45 +12,30 @@
 #include "cse320_functions.h"
 #include <stddef.h> 
 
+// .c
+
+
 int addr_count=0;
 int files_count=0; // opened files
 int N=5;
 int reapflag=0;
 sem_t mutex;
-char* command;
-char* X;
-/*
-struct addr_in_use{
-
-	void* addr;
-	int ref_count;// = 0;
-
-};
-
-struct files_in_use{
-
-	char* filename;
-	int ref_count;// = 0;
-	FILE *fptr;
-};
-
 
 struct addr_in_use addr_array[25];
 struct files_in_use files_array[5];
-*/
-
-void printArray1(struct addr_in_use* ptr);
-void printArray2(struct files_in_use* ptr);
 
 
-int main(){
+void printArray1(void* ptr);
+void printArray2(void* ptr);
 
-	return 0;
+void reset(struct addr_in_use* addr_array2, struct files_in_use* files_array2){
+
+	addr_array[0] = addr_array2[0];
+	files_array[0] = files_array2[0];
 
 }
 
-void *cse320_malloc(void* addr_array, size_t size){
-	printf("malloc called\n");
+void *cse320_malloc ( size_t size){ 
 
 	int k,j;
 	if(addr_count<25){
@@ -83,8 +68,6 @@ void *cse320_malloc(void* addr_array, size_t size){
 
 		printf("Not enough memory\n");
 
-		free(command);
-		free(X);
 		cse320_clean();
 
 		exit(-1);
@@ -95,10 +78,8 @@ void *cse320_malloc(void* addr_array, size_t size){
 
 
 
-
 void cse320_free(void *ptr){
 	int k;
-	//int found = 0;
 
 	for(k=0; k<25; k++){
 		if(addr_array[k].addr!=NULL){
@@ -106,8 +87,6 @@ void cse320_free(void *ptr){
 				if(addr_array[k].ref_count==0){
 					printf("Free: Double free attempt\n");
 
-					free(command);
-					free(X);
 					cse320_clean();
 
 					errno=EADDRNOTAVAIL;
@@ -130,8 +109,6 @@ void cse320_free(void *ptr){
 	if(k==25){ // not found
 		printf("Free: Illegal address\n"); 
 
-		free(command);
-		free(X);
 		cse320_clean();
 
 		errno=EFAULT;
@@ -149,7 +126,7 @@ FILE *cse320_fopen(char *filename){
 	int o,l,m;
 	files_count++;
 
-
+	(struct files_in_use*)files_array;
 	// Already exist in files_array
 	for(o=0; o<5;o++){
 		if(files_array[o].filename!=NULL){
@@ -167,8 +144,6 @@ FILE *cse320_fopen(char *filename){
 	if(files_count>5) {
 		printf("Too many opened files\n");
 
-		free(command);
-		free(X);
 		cse320_clean();
 
 		files_count--;	
@@ -223,23 +198,15 @@ FILE *cse320_fopen(char *filename){
 
 
 
-
-
-
-
-
 void cse320_fclose(char* filename){
 
 	int k;
-
 	for(k=0; k<5; k++){
 		if(files_array[k].filename!=NULL){
 			if(strcmp(filename,files_array[k].filename) ==0){
 				if(files_array[k].ref_count==0){
 					printf("Close: Ref count is zero\n");
 
-					free(command);
-					free(X);
 					cse320_clean();
 
 					errno=EINVAL;
@@ -267,8 +234,6 @@ void cse320_fclose(char* filename){
 	if(k==5){ // not found
 		printf("Close: Illegal filename\n"); 
 
-		free(command);
-		free(X);
 		cse320_clean();
 
 		errno=ENOENT;
@@ -277,7 +242,6 @@ void cse320_fclose(char* filename){
 	}
 
 }
-
 
 
 
@@ -337,12 +301,6 @@ void cse320_fork(){
 
 	if(pid==0){ // child
 		printf("CHILd HERE\n");	
-		/*
-		   free(command);
-		   free(X);
-		   cse320_clean();
-
-		 */
 		exit(0);
 
 	} else { // parent
@@ -353,7 +311,7 @@ void cse320_fork(){
 			signal(SIGALRM, cse320_reap);
 
 			reapflag=1;
-			alarm(1); // alarm set
+			alarm(N); // alarm set
 
 			//	sleep(N);		
 
@@ -377,11 +335,9 @@ void cse320_reap(int signum){
 			printf("CHILD %d terminated\n", pid);
 		}	
 	}
-	printf("resetalarm\n");
-	alarm(1);
-	//sleep(N);
+	alarm(N);
 	//	system("ps -eo pid,ppid,stat,cmd"); 	
-
+	sleep(N);
 }
 
 
@@ -389,38 +345,43 @@ void cse320_reap(int signum){
 
 void cse320_settimer(int newN) {
 	N = newN;
+	alarm(N);
+}
+
+int cse320_gettimer(){
+	return N;
+
 }
 
 
+/*
+
+
+   void printArray1(void* ptr){
+   int j=0;
+   for(j=0; j<25;j++){
+   printf("At %d addr :%p, count: %d\n",j+1, (ptr+j)->addr, (ptr+j)->ref_count);
+   }
+   }
 
 
 
+   void printArray2(void* ptr){
+   int j=0;
 
-void printArray1(struct addr_in_use* ptr){
-	int j=0;
-	for(j=0; j<25;j++){
-		printf("At %d addr :%p, count: %d\n",j+1, (ptr+j)->addr, (ptr+j)->ref_count);
-	}
-}
+   for(j=0; j<5;j++){
+   printf("At %d filename :%s, count: %d, FP: %p ",j+1, (ptr+j)->filename, (ptr+j)->ref_count, (ptr+j)->fptr);
 
+   if((ptr+j)->fptr!=NULL){
+   printf("FD: %d\n",fileno((ptr+j)->fptr));
 
-
-void printArray2(struct files_in_use* ptr){
-	int j=0;
-
-	for(j=0; j<5;j++){
-		printf("At %d filename :%s, count: %d, FP: %p ",j+1, (ptr+j)->filename, (ptr+j)->ref_count, (ptr+j)->fptr);
-
-		if((ptr+j)->fptr!=NULL){
-			printf("FD: %d\n",fileno((ptr+j)->fptr));
-
-		}
-		else {
-			printf("FD:  \n"); 
+   }
+   else {
+   printf("FD:  \n"); 
 
 
-		}
-	}
+   }
+   }
 
-}
-
+   }
+ */

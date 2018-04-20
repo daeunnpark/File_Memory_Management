@@ -2,28 +2,12 @@
 #include <stdio.h>
 #include <unistd.h>
 
-
-int addr_count=0;
-int files_count=0; // opened files
-int N=5;
-int reapflag=0;
+// test.c
+//int addr_count=0;
+//int files_count=0; // opened files
+//int N=5;
+//int reapflag=0;
 //sem_t mutex;
-char* command;
-char* X;
-
-struct addr_in_use{
-
-	void* addr;
-	int ref_count;// = 0;
-
-};
-
-struct files_in_use{
-
-	char* filename;
-	int ref_count;// = 0;
-	FILE *fptr;
-};
 
 
 struct addr_in_use addr_array[25];
@@ -36,7 +20,6 @@ void printArray1(struct addr_in_use* ptr){
 		printf("At %d addr :%p, count: %d\n",j+1, (ptr+j)->addr, (ptr+j)->ref_count);
 	}
 }
-
 
 
 void printArray2(struct files_in_use* ptr){
@@ -63,25 +46,38 @@ void printArray2(struct files_in_use* ptr){
 
 
 int main(){
+	reset(addr_array, files_array);
+
+
 	// PART2 AND PART3
 	printf("TEST------\n");
+	//printArray1(addr_array);
+
+	cse320_fork();
+	cse320_fork();
+
+	cse320_settimer(1); 
+	cse320_fork();
+	cse320_settimer(3); 
+	sleep(cse320_gettimer());// Default timer N = 5
 
 
-	//cse320_malloc(10);
-	/*cse320_fork();
-	  cse320_fork();
-	  cse320_fork();
-	  sleep(15);
+
+	//	printArray1(addr_array);
+	//	void *p = cse320_malloc(addr_array, 40);
+	/*
+	   for(int j=0; j<23; j++){
+	   cse320_malloc(30); 
+	   }
+	   cse320_free(p);
+	   cse320_malloc(30);
+	   cse320_malloc(30);
+	   cse320_malloc(30);
 	 */
+	//cse320_clean(addr_array, files_array);
+	//	printArray1(addr_array); 
+	//cse320_clean();
 
-
-	printArray1(addr_array);
-	void *p = cse320_malloc(addr_array, 40);
-	for(int j=0; j<23; j++){
-	//	cse320_malloc(30); 
-	}
-	printArray1(addr_array); 
-	printf("aaaaa1\n");
 	return 1;
 }
 

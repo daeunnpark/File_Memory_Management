@@ -4,6 +4,10 @@ Do not cheat and good luck!
 It will be great (and useful for you) if you will document your work in this README and write a sort of documentation for your homework. We may give few extra credits for good documentation.
 
 
+void reset(struct addr_in_use* addr_array2, struct files_in_use* files_array2)
+
+
+
 void *cse320_malloc(size_t size);
 Takes a size of type size_t and allocate a block of memory that is size bytes large. If the requested memory can be allocated, a pointer of type void* is returned to the beginning of the memory block.
 
@@ -53,5 +57,5 @@ Waits all children and reap them, to avoid zoombie process. cse320_reap(int sign
 void cse320_settimer(int newN);
 Takes a parameter newN of type int, changes global int variable N to new N. N is the interval for the timer to call cse320_reap(int signum).
 
-
+int cse320_gettimer()
 
