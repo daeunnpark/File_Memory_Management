@@ -9,7 +9,6 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#include "cse320_functions.h"
 #include <stddef.h> 
 
 // .c
@@ -28,10 +27,18 @@ struct files_in_use files_array[5];
 void printArray1(void* ptr);
 void printArray2(void* ptr);
 
-void cse320_set (struct addr_in_use* addr_array2, struct files_in_use* files_array2){
-
+void* cse320_set( void* arg ){ //(struct addr_in_use* addr_array2, struct files_in_use* files_array2){
+printf("should be 0:%d\n ", sem_init(&mutex, 0, 1));
+sem_wait(&mutex);
+printf("setting...\n");
+sleep(10);
+/*
 	addr_array[0] = addr_array2[0];
 	files_array[0] = files_array2[0];
+*/
+printf("DONE\n");
+sem_post(&mutex);
+
 
 }
 

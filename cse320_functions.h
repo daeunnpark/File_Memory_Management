@@ -16,7 +16,7 @@ struct files_in_use{
 	FILE *fptr; 
 };
 
-void cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_array2);
+void* cse320_set( void* arg );//(struct addr_in_use* addr_array2, struct files_in_use* files_array2);
 
 void *cse320_malloc(size_t size);
 

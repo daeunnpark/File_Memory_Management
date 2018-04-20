@@ -1,7 +1,7 @@
 #include "cse320_functions.h" 
 #include <stdio.h>
 #include <unistd.h>
-
+#include <pthread.h>
 // test.c
 //int addr_count=0;
 //int files_count=0; // opened files
@@ -49,12 +49,26 @@ int main(){
 
 	// PART2 AND PART3
 
-	cse320_set(addr_array, files_array);
+//	cse320_set(addr_array, files_array);
 
 	/*DO NOT CHANGE ABOVE
 	  YOUR TEST START FROM HERE*/
 
 	printf("TEST------\n");
+
+pthread_t tid1, tid2;
+int niters = 10;;
+
+pthread_create(&tid1, NULL, cse320_set, &niters);
+pthread_create(&tid2, NULL, cse320_set, &niters); 
+
+printf("the main thread continues with its execution\n");
+pthread_join(tid1, NULL);
+pthread_join(tid2, NULL);
+
+printf("the main thread finished\n");
+
+
 
 	/*		void *p;// = cse320_malloc(40);
 
