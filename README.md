@@ -24,25 +24,23 @@ clean:
 -  `"part1"` (from `"part1.c"`)
 -  `"part23"` (from `"part23_test.c"`).
 
-Sample file `"part23_test.c"` provides the guideline for part2 and part3.
+Sample file `"part23_test.c"` provides a guideline for part2 and part3.
 `"part23_test.c"` include the library header file `"cse320_functions.h"`, which imports part2 and part3 functions. As you can see in `"part23_test.c"`, any test file should start by `cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_array2)` and finishes by `cse320_clean()`.
 
 \* If you are creating your own Makefile, be sure to include library `"cse320_functions.o"` in your Makefile.
 
 
-Read below description for each function in `"cse320\_functions.h"` for part2 and part3.   
+Read below description for each function in `"cse320_functions.h"` for part2 and part3.   
 
 
 ## Struct/Function Description
 
 `void cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_array2)` <br /> 
 Resets addr\_in\_use array and files\_in\_use array. Must be called before any function call. 
-&nbsp;
-&nbsp;
+
 `void *cse320_malloc(size_t size)` <br />
 Takes a size of type size\_t and allocate a block of memory that is size bytes large. If the requested memory can be allocated, a pointer of type void\* is returned to the beginning of the memory block.  
 Besides, the number of memory block is limited to 25. If the user tries to allocate beyond the limit, the function prints the message "Not enough memory" and terminates with exit value -1. 
-&nbsp;
 
 `void cse320_free(void* ptr)` <br />
 Frees the memory space pointed to by ptr, which must have been returned by a previous call to `cse320_malloc()`.
@@ -51,18 +49,13 @@ If the address in the pointer is already freed, print the function prints the me
 
 `FILE *cse320_fopen(char *filename)`<br />
 Opens the file whose name is the string pointed to by filename and associates a stream with it, with default flag "w". Returns the file pointer associated.
-
 The same file can be opened multiples times, but have to be closed the same number of times. Otherwise, the file remains opened. The int variable ref\_count in files\_in\_use struct indicates the remaining times to close. If ref\_count is 0, the file is closed. 
-
 Besides, the number of opened files is limited to 25. If the user tries to open beyond the limit. the function prints the message "Too many opened files" and terminates with exit value -1. The global int variable files\_count indicates the number of opened files.
 
 `void cse320_fclose(char *filename)`<br />
 Closes the file whose name is the string pointed to by filename and associates a stream with it. 
-
 For each file, the int variable ref\_count in files\_in\_use struct indicates the remaining times to close.
-
 If there is no such opened file, the function prints the message ”Close: Illegal filename” and terminates with exit value -1. 
-
 If the file is already closed, the function prints the message ”Close: Ref count is zero” and terminates with exit value -1. 
 
 `void cse320_clean()`<br />
