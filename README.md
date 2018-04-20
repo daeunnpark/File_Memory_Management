@@ -4,11 +4,11 @@
 
 It will be great (and useful for you) if you will document your work in this README and write a sort of documentation for your homework. We may give few extra credits for good documentation. -->
 
-##Introduction
+## Introduction
 
 
 
-#Makefile
+# Makefile
 This is a sample Makefile.
 ```
 all:
@@ -25,7 +25,7 @@ clean:
 -  part23 (from part23\_test.c).
 
 Sample file part23\_test.c provides the guideline for part2 and part3.
-part23\_test.c include the library header file "cse320\_functions.h", which imports part2 and part3 functions. As you can see in part23\_test.c, any test file should start by `cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_array2)` and finishes by `cse320_clean()` .
+part23\_test.c include the library header file `"cse320\_functions.h"`, which imports part2 and part3 functions. As you can see in part23\_test.c, any test file should start by `cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_array2)` and finishes by `cse320_clean()` .
 
 \* If you are creating your own Makefile, be sure to include library cse320\_functions.o in your Makefile.
 
@@ -33,9 +33,9 @@ part23\_test.c include the library header file "cse320\_functions.h", which impo
 Read below description for each function in cse320\_functions.h for part2 and part3.   
 
 
-##Struct/Function Description
+## Struct/Function Description
 
-`void cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_array2)`
+```void cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_array2)```
 Resets addr\_in\_use array and files\_in\_use array. Must be called before any function call.
 
 
