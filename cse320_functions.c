@@ -28,7 +28,7 @@ struct files_in_use files_array[5];
 void printArray1(void* ptr);
 void printArray2(void* ptr);
 
-void reset(struct addr_in_use* addr_array2, struct files_in_use* files_array2){
+void cse320_set (struct addr_in_use* addr_array2, struct files_in_use* files_array2){
 
 	addr_array[0] = addr_array2[0];
 	files_array[0] = files_array2[0];
@@ -294,26 +294,18 @@ void cse320_fork(){
 	pid_t pid= getpid();
 
 	pid = fork();
-	printf(" pid: %d\n ", getpid());
-
-
-
+	//	printf(" pid: %d\n ", getpid());
 
 	if(pid==0){ // child
-		printf("CHILd HERE\n");	
+		//		printf("CHILd HERE\n");	
 		exit(0);
 
 	} else { // parent
-		printf("gg111111\n"); 
 		if(!reapflag){
-			printf("gg\n");
-
 			signal(SIGALRM, cse320_reap);
 
 			reapflag=1;
 			alarm(N); // alarm set
-
-			//	sleep(N);		
 
 		}
 
@@ -326,17 +318,17 @@ void cse320_fork(){
 
 void cse320_reap(int signum){
 	int status;
-	printf("reap called\n");
+	//printf("reap called\n");
 
 
 	if(getpid()!=0){// parent
 		pid_t pid;
 		while((pid = waitpid(-1, &status, 0))>0){
-			printf("CHILD %d terminated\n", pid);
+			//	printf("CHILD %d terminated\n", pid);
 		}	
 	}
 	alarm(N);
-	//	system("ps -eo pid,ppid,stat,cmd"); 	
+	//system("ps -eo pid,ppid,stat,cmd"); 	
 	sleep(N);
 }
 

@@ -49,7 +49,7 @@ int main(){
 
 	// PART2 AND PART3
 
-	reset(addr_array, files_array);
+	cse320_set(addr_array, files_array);
 
 	/*DO NOT CHANGE ABOVE
 	  YOUR TEST START FROM HERE*/
@@ -105,6 +105,16 @@ int main(){
 	 */
 	//printArray2(files_array); 
 
+	/*
+	   cse320_fork();
+
+	   sleep(cse320_gettimer());// Default timer N = 5
+	 
+*/
+
+
+
+
 
 	/* DO NOT CHANGE ABOVE
 	   YOUR TEST FINISHES AFTER THIS*/
@@ -114,16 +124,6 @@ int main(){
 
 	//	printArray1(addr_array); 
 
-
-	/*
-	   cse320_fork();
-	   cse320_fork();
-
-	   cse320_settimer(1); 
-	   cse320_fork();
-	   cse320_settimer(3); 
-	   sleep(cse320_gettimer());// Default timer N = 5
-	 */
 
 	return 1;
 }

@@ -1,21 +1,56 @@
 # Homework #4
-Do not cheat and good luck!
+
+<!--Do not cheat and good luck!
 
 It will be great (and useful for you) if you will document your work in this README and write a sort of documentation for your homework. We may give few extra credits for good documentation.
+-->
+
+##Introduction##
 
 
-void reset(struct addr_in_use* addr_array2, struct files_in_use* files_array2)
+
+##Makefile##
+This is a sample Makefile.
+```
+all:
+	gcc part1.c -o part1	
+	gcc part23_test.c  -o part23 cse320_functions.o  -lpthread
+	gcc A.c -o A
+clean:
+	rm -f part1 part23 A
+
+```
+
+\*Sample Makefile makes two executable files:
+-  part1(from part1.c)
+-  part23(from part23\_test.c).
+
+Sample file part23\_test.c provides the guideline for part2 and part3.
+part23\_test.c include the library header file "cse320\_functions.h", which imports part2 and part3 functions. As you can see in part23\_test.c, any test file should start by cse320\_set() and finishes by cse320\_clean().
+
+\* If you are creating your own Makefile, be sure to include library cse320\_functions.o in your Makefile.
+
+
+Read below description for each function in cse320\_functions.h for part2 and part3.   
+
+
+##Struct/Function Description##
 
 
 
-void *cse320_malloc(size_t size);
-Takes a size of type size_t and allocate a block of memory that is size bytes large. If the requested memory can be allocated, a pointer of type void* is returned to the beginning of the memory block.
+######void cse320\_set(struct addr\_in\_use\* addr\_array2, struct files\_in\_use\* files\_array2)######
+
+Resets addr\_in\_use array and files\_in\_use array. Must be called before any function call.
+
+
+void \*cse320\_malloc(size\_t size);
+Takes a size of type size\_t and allocate a block of memory that is size bytes large. If the requested memory can be allocated, a pointer of type void\* is returned to the beginning of the memory block.
 
 Besides, the number of memory block is limited to 25. If the user tries to allocate beyond the limit, the function prints the message ""Not enough memory" and terminates with exit value -1.
 
 
-void cse320_free(void *ptr);
-Frees the memory space pointed to by ptr, which must have been returned by a previous call to cse320_malloc().
+void cse320\_free(void \*ptr);
+Frees the memory space pointed to by ptr, which must have been returned by a previous call to cse320\_malloc().
 
 If there is no such address allocated, print the function prints the message ”Free: Illegal address” and terminates with exit value -1.
 
@@ -23,19 +58,19 @@ If the address in the pointer is already freed, print the function prints the me
   
 
 
-FILE *cse320_fopen(char *filename);
+FILE \*cse320\_fopen(char \*filename);
 Opens the file whose name is the string pointed to by filename and associates a stream with it, with default flag "w". Returns the file pointer associated.
 
-The same file can be opened multiples times, but have to be closed the same number of times. Otherwise, the file remains opened. The int variable ref_count in files_in_use struct indicates the remaining times to close. If ref_count is 0, the file is closed. 
+The same file can be opened multiples times, but have to be closed the same number of times. Otherwise, the file remains opened. The int variable ref\_count in files\_in\_use struct indicates the remaining times to close. If ref\_count is 0, the file is closed. 
 
 
-Besides, the number of opened files is limited to 25. If the user tries to open beyond the limit. the function prints the message "Too many opened files" and terminates with exit value -1. The global int variable files_count indicates the number of opened files.
+Besides, the number of opened files is limited to 25. If the user tries to open beyond the limit. the function prints the message "Too many opened files" and terminates with exit value -1. The global int variable files\_count indicates the number of opened files.
 
 
-void cse320_fclose(char *filename);
+void cse320\_fclose(char \*filename);
 Closes the file whose name is the string pointed to by filename and associates a stream with it. 
 
-For each file, the int variable ref_count in files_in_use struct indicates the remaining times to close.
+For each file, the int variable ref\_count in files\_in\_use struct indicates the remaining times to close.
 
 If there is no such opened file, the function prints the message ”Close: Illegal filename” and terminates with exit value -1. 
 
@@ -43,19 +78,20 @@ If the file is already closed, the function prints the message ”Close: Ref cou
 
 
 
-void cse320_clean();
+void cse320\_clean();
 Frees any allocated memory block and closes any opened file, before exit.
 
 
-void cse320_fork();
-Creates a new process(child) by duplicating the calling process(parent).  When cse320_fork() is called for the first time, cse320_fork() sets an timer of N seconds ( N = 5 by default, but modifiable by calling cse320_settimer(int newN)), which alarms cse320_reap() every N seconds to reap child.
+void cse320\_fork();
+Creates a new process(child) by duplicating the calling process(parent). When cse320\_fork() is called for the first time, cse320\_fork() sets an timer of N seconds (N = 5 by default, but modifiable by calling cse320\_settimer(int newN)), which calls cse320\_reap() every N seconds to reap child.
 
 
-void cse320_reap(int signum);i
-Waits all children and reap them, to avoid zoombie process. cse320_reap(int signum) is called every N seconds ( initialized to 5 but modifiable with cse320_settimer(int newN).
+void cse320\_reap(int signum);
+Waits all children and reap them, to avoid zoombie process. cse320\_reap(int signum) is called every N seconds ( initialized to 5 but modifiable with cse320\_settimer(int newN).
 
-void cse320_settimer(int newN);
-Takes a parameter newN of type int, changes global int variable N to new N. N is the interval for the timer to call cse320_reap(int signum).
+void cse320\_settimer(int newN);
+Takes a parameter newN of type int, changes global int variable N to new N. N is the interval for the timer to call cse320\_reap(int signum).
 
-int cse320_gettimer()
+int cse320\_gettimer();
+Returns the current interval of the timer to call cse320\_reap(int signum).
 
