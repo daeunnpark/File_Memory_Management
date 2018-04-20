@@ -18,7 +18,7 @@ int addr_count=0;
 int files_count=0; // opened files
 int N=5;
 int reapflag=0;
-sem_t mutex;
+
 
 struct addr_in_use addr_array[25];
 struct files_in_use files_array[5];
@@ -27,22 +27,30 @@ struct files_in_use files_array[5];
 void printArray1(void* ptr);
 void printArray2(void* ptr);
 
-void* cse320_set( void* arg ){ //(struct addr_in_use* addr_array2, struct files_in_use* files_array2){
-printf("should be 0:%d\n ", sem_init(&mutex, 0, 1));
-sem_wait(&mutex);
-printf("setting...\n");
-sleep(10);
-/*
+void* cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_array2){
+	//printf("should be 0:%d\n ", sem_init(&mutex, 0, 1));
+
+	sem_t mutex;
+	sem_init(&mutex, 0, 1)
+		sem_wait(&mutex);
+
+	printf("setting...\n");
+	sleep(10);
+
 	addr_array[0] = addr_array2[0];
 	files_array[0] = files_array2[0];
-*/
-printf("DONE\n");
-sem_post(&mutex);
+
+
+	printf("DONE\n");
+	sem_post(&mutex);
 
 
 }
 
 void *cse320_malloc (size_t size){ 
+	sem_t mutex;
+	sem_init(&mutex, 0, 1)
+		sem_wait(&mutex);
 
 	int k,j;
 	if(addr_count<25){
@@ -80,12 +88,17 @@ void *cse320_malloc (size_t size){
 		exit(-1);
 
 	}
+	sem_post(&mutex);
 }
 
 
 
 
 void cse320_free(void *ptr){
+	sem_t mutex;
+	sem_init(&mutex, 0, 1)
+		sem_wait(&mutex);
+
 	int k;
 
 	for(k=0; k<25; k++){
@@ -123,13 +136,19 @@ void cse320_free(void *ptr){
 	}
 
 
-
+	sem_post(&mutex); 
 }
 
 
 
 
 FILE *cse320_fopen(char *filename){
+
+	sem_t mutex;
+	sem_init(&mutex, 0, 1)
+		sem_wait(&mutex);
+
+
 	int o,l,m;
 	files_count++;
 
@@ -199,13 +218,16 @@ FILE *cse320_fopen(char *filename){
 
 		}	
 	}
-
+	sem_post(&mutex); 
 
 }
 
 
 
 void cse320_fclose(char* filename){
+	sem_t mutex;
+	sem_init(&mutex, 0, 1)
+		sem_wait(&mutex);
 
 	int k, flag;
 	flag= 0;
@@ -248,6 +270,7 @@ void cse320_fclose(char* filename){
 		exit(-1); 
 	}
 
+	sem_post(&mutex); 
 }
 
 
@@ -256,6 +279,12 @@ void cse320_fclose(char* filename){
 
 
 void cse320_clean(){
+
+	sem_t mutex;
+	sem_init(&mutex, 0, 1)
+		sem_wait(&mutex);
+
+
 	int j;
 
 	for(j=0; j<25; j++){
@@ -289,7 +318,9 @@ void cse320_clean(){
 			//free(files_array[j].fptr);  		
 
 		}	
+
 	}
+	sem_post(&mutex); 
 }
 
 
@@ -297,6 +328,13 @@ void cse320_clean(){
 
 
 void cse320_fork(){
+
+	sem_t mutex;
+	sem_init(&mutex, 0, 1)
+		sem_wait(&mutex);
+
+
+
 	int status;
 	pid_t pid= getpid();
 
@@ -317,13 +355,19 @@ void cse320_fork(){
 		}
 
 	}
-
+	sem_post(&mutex); 
 
 }
 
 
 
 void cse320_reap(int signum){
+
+	sem_t mutex;
+	sem_init(&mutex, 0, 1)
+		sem_wait(&mutex);
+
+
 	int status;
 	//printf("reap called\n");
 
@@ -337,19 +381,30 @@ void cse320_reap(int signum){
 	alarm(N);
 	//system("ps -eo pid,ppid,stat,cmd"); 	
 	sleep(N);
+
+	sem_post(&mutex); 
 }
 
 
 
 
 void cse320_settimer(int newN) {
+	sem_t mutex;
+	sem_init(&mutex, 0, 1)
+		sem_wait(&mutex);
+
 	N = newN;
 	alarm(N);
+	sem_post(&mutex); 
 }
 
 int cse320_gettimer(){
-	return N;
+	sem_t mutex;
+	sem_init(&mutex, 0, 1)
+		sem_wait(&mutex);
 
+	return N;
+	sem_post(&mutex); 
 }
 
 
