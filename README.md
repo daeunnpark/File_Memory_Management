@@ -42,7 +42,7 @@ Resets addr\_in\_use array and files\_in\_use array. Must be called before any f
 `void *cse320_malloc(size_t size)` <br />
 Takes a size of type size\_t and allocate a block of memory that is size bytes large. If the requested memory can be allocated, a pointer of type void\* is returned to the beginning of the memory block.  
 &nbsp;
-&nbsp;
+
 Besides, the number of memory block is limited to 25. If the user tries to allocate beyond the limit, the function prints the message "Not enough memory" and terminates with exit value -1.<br />  
 
 `void cse320_free(void* ptr)` <br />
