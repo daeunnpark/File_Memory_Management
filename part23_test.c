@@ -12,7 +12,7 @@
 
 struct addr_in_use addr_array[25];
 struct files_in_use files_array[5];
-
+int pidList[100];
 
 void printArray1(struct addr_in_use* ptr){
 	int j=0;
@@ -49,12 +49,17 @@ int main(){
 
 	// PART2 AND PART3
 
-	//	cse320_set(addr_array, files_array);
+	cse320_set(addr_array, files_array);
 
 	/*DO NOT CHANGE ABOVE
 	  YOUR TEST START FROM HERE*/
 
 	printf("TEST------\n");
+cse320_setPidList(pidList);
+
+cse320_fork_thread();
+ cse320_fork_thread();  
+// cse320_fork_thread();  
 	/*
 	   pthread_t tid1, tid2;
 	   int niters = 10;;
@@ -70,7 +75,13 @@ int main(){
 
 	 */
 
-	/*		void *p;// = cse320_malloc(40);
+
+
+
+
+
+/*
+			void *p;// = cse320_malloc(40);
 
 			for(int j=0; j<25; j++){
 			p = cse320_malloc(30); 
@@ -86,8 +97,8 @@ int main(){
 			cse320_malloc(30);
 			cse320_malloc(30); 
 			printArray1(addr_array); 
-	 */
-
+	 
+*/
 	/*
 
 	   printf("opened: %d\n",fileno(cse320_fopen("A")));

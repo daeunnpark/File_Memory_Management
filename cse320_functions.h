@@ -31,4 +31,7 @@ void cse320_reap(int signum);
 void cse320_settimer(int newN);
 int cse320_gettimer();
 
+void *cse320_setPidList(int* pidList2);
+void cse320_fork_thread();
+void *cse320_reap_thread();
 #endif

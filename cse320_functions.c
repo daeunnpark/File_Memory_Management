@@ -10,6 +10,9 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <stddef.h> 
+#include <pthread.h>
+#include <sys/mman.h>
+
 
 // .c
 
@@ -18,11 +21,12 @@ int addr_count=0;
 int files_count=0; // opened files
 int N=5;
 int reapflag=0;
-
+int count = 0;
+static int *glob_var;
 
 struct addr_in_use addr_array[25];
 struct files_in_use files_array[5];
-
+int pidList [100];
 
 void printArray1(void* ptr);
 void printArray2(void* ptr);
@@ -31,11 +35,11 @@ void* cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_arr
 	//printf("should be 0:%d\n ", sem_init(&mutex, 0, 1));
 
 	sem_t mutex;
-	sem_init(&mutex, 0, 1)
-		sem_wait(&mutex);
+	sem_init(&mutex, 0, 1);
+	sem_wait(&mutex);
 
 	printf("setting...\n");
-	sleep(10);
+	//	sleep(10);
 
 	addr_array[0] = addr_array2[0];
 	files_array[0] = files_array2[0];
@@ -46,11 +50,14 @@ void* cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_arr
 
 
 }
+void * cse320_setPidList(int* pidList2 ){
+	pidList[0]= pidList2[0];
 
+}
 void *cse320_malloc (size_t size){ 
 	sem_t mutex;
-	sem_init(&mutex, 0, 1)
-		sem_wait(&mutex);
+	sem_init(&mutex, 0, 1);
+	sem_wait(&mutex);
 
 	int k,j;
 	if(addr_count<25){
@@ -84,7 +91,7 @@ void *cse320_malloc (size_t size){
 		printf("Not enough memory\n");
 
 		cse320_clean();
-
+		sem_post(&mutex); 
 		exit(-1);
 
 	}
@@ -96,8 +103,8 @@ void *cse320_malloc (size_t size){
 
 void cse320_free(void *ptr){
 	sem_t mutex;
-	sem_init(&mutex, 0, 1)
-		sem_wait(&mutex);
+	sem_init(&mutex, 0, 1);
+	sem_wait(&mutex);
 
 	int k;
 
@@ -110,7 +117,7 @@ void cse320_free(void *ptr){
 					cse320_clean();
 
 					errno=EADDRNOTAVAIL;
-
+					sem_post(&mutex); 
 					exit(-1);
 				} else {// >0
 					free(addr_array[k].addr);				
@@ -132,6 +139,7 @@ void cse320_free(void *ptr){
 		cse320_clean();
 
 		errno=EFAULT;
+		sem_post(&mutex); 		
 		exit(-1); 
 	}
 
@@ -145,8 +153,8 @@ void cse320_free(void *ptr){
 FILE *cse320_fopen(char *filename){
 
 	sem_t mutex;
-	sem_init(&mutex, 0, 1)
-		sem_wait(&mutex);
+	sem_init(&mutex, 0, 1);
+	sem_wait(&mutex);
 
 
 	int o,l,m;
@@ -173,6 +181,7 @@ FILE *cse320_fopen(char *filename){
 		cse320_clean();
 
 		files_count--;	
+		sem_post(&mutex); 		
 		exit(-1);
 
 	}	
@@ -226,8 +235,8 @@ FILE *cse320_fopen(char *filename){
 
 void cse320_fclose(char* filename){
 	sem_t mutex;
-	sem_init(&mutex, 0, 1)
-		sem_wait(&mutex);
+	sem_init(&mutex, 0, 1);
+	sem_wait(&mutex);
 
 	int k, flag;
 	flag= 0;
@@ -240,6 +249,7 @@ void cse320_fclose(char* filename){
 					cse320_clean();
 
 					errno=EINVAL;
+					sem_post(&mutex); 		
 					exit(-1);
 				} else {// >0
 					files_array[k].ref_count--;
@@ -253,7 +263,6 @@ void cse320_fclose(char* filename){
 						printf("SHOULD BE -1:  %d\n",fclose(files_array[k].fptr));
 					}
 					return;
-					//break;			
 				}
 			}
 
@@ -266,7 +275,7 @@ void cse320_fclose(char* filename){
 		cse320_clean();
 
 		errno=ENOENT;
-
+		sem_post(&mutex); 
 		exit(-1); 
 	}
 
@@ -281,8 +290,8 @@ void cse320_fclose(char* filename){
 void cse320_clean(){
 
 	sem_t mutex;
-	sem_init(&mutex, 0, 1)
-		sem_wait(&mutex);
+	sem_init(&mutex, 0, 1);
+	sem_wait(&mutex);
 
 
 	int j;
@@ -330,8 +339,8 @@ void cse320_clean(){
 void cse320_fork(){
 
 	sem_t mutex;
-	sem_init(&mutex, 0, 1)
-		sem_wait(&mutex);
+	sem_init(&mutex, 0, 1);
+	sem_wait(&mutex);
 
 
 
@@ -360,12 +369,123 @@ void cse320_fork(){
 }
 
 
+void cse320_fork_thread(){
+
+	/*	sem_t mutex;
+		sem_init(&mutex, 0, 1);
+		sem_wait(&mutex);
+	 */
+
+
+	int status;
+	pid_t pid= getpid();
+
+
+	glob_var = mmap(NULL, sizeof *glob_var, PROT_READ | PROT_WRITE, 
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+
+	*glob_var = 1;
+
+	pid = fork();
+	//	printf(" pid: %d\n ", getpid());
+
+	if(pid==0){ // child
+		printf("child, glo var: %d\n", *glob_var);	
+
+		//add in the list	
+		pidList[count]= getpid();
+		count++;
+		printf("count fork : %d\n", count);  
+/*
+		for(int k=0; k<10; k++){
+			printf("PIDfork  at %d : %d|",k+1,pidList[k]);
+		}
+*/
+		(*glob_var)++;
+		exit(0);
+		printf("after exit++++_______________________+++++\n");
+	} else { // parent
+		if(count==0){
+			//	reapflag=1;
+			printf("thread!\n");
+			pthread_t tid1, tid2;
+			pthread_create(&tid1, NULL, cse320_reap_thread, NULL);  
+			printf("the main thread continues with its execution\n"); 
+
+			if(count ==0){
+				pthread_join(tid1, NULL); 
+				printf("the main thread finished\n"); 
+			}
+
+
+			// set thread
+
+		}
+
+	}
+	//sem_post(&mutex); 
+
+}
+
+void *cse320_reap_thread(){
+
+	/*sem_t mutex;
+	  sem_init(&mutex, 0, 1);
+	  sem_wait(&mutex);
+
+	 */
+	int status;
+	printf("reap thread called\n");
+
+
+	if(getpid()!=0){// parent
+		printf("parrent-----");		
+		pid_t pid;
+
+		for(int k=0; k<10; k++){
+			printf("PIDbef at %d : %d|",k+1, pidList[k]);
+		}		
+		while((pid = waitpid(-1, &status, 0))>0){
+
+			printf("Thread CHILD %d terminated\n", pid);
+			// remove
+	
+
+		for(int o = 0; o<10; o++){
+
+				if(pidList[o]==pid){
+					pidList[o]=200;
+					count--;
+					printf("count reap : %d\n", count);
+				}
+
+			}
+(*glob_var)++; 		
+	printf("AFTER REAP-----\n");
+			/*
+			   for(int k=0; k<10; k++){
+			   printf("PIDreap at %d : %d|",k+1, pidList[k]);
+			   }
+			 */
+
+
+		}	
+		printf("%d\n", *glob_var);	
+		munmap(glob_var, sizeof *glob_var);
+	}
+	//system("ps -eo pid,ppid,stat,cmd"); 	
+
+	//sem_post(&mutex); 
+
+
+}
+
 
 void cse320_reap(int signum){
 
 	sem_t mutex;
-	sem_init(&mutex, 0, 1)
-		sem_wait(&mutex);
+	sem_init(&mutex, 0, 1);
+	sem_wait(&mutex);
 
 
 	int status;
@@ -390,8 +510,8 @@ void cse320_reap(int signum){
 
 void cse320_settimer(int newN) {
 	sem_t mutex;
-	sem_init(&mutex, 0, 1)
-		sem_wait(&mutex);
+	sem_init(&mutex, 0, 1);
+	sem_wait(&mutex);
 
 	N = newN;
 	alarm(N);
@@ -400,8 +520,8 @@ void cse320_settimer(int newN) {
 
 int cse320_gettimer(){
 	sem_t mutex;
-	sem_init(&mutex, 0, 1)
-		sem_wait(&mutex);
+	sem_init(&mutex, 0, 1);
+	sem_wait(&mutex);
 
 	return N;
 	sem_post(&mutex); 
