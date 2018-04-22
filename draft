@@ -1,4 +1,33 @@
 
+			//	pthread_join(tid1, NULL);
+			//	printf("the main thread finished\n"); 
+
+
+
+
+			printf("time set\n");
+			//istart = clock();
+			//diff = clock() - start;		
+		}
+		//	wait(NULL);
+		//sleep(5);	
+//		clock_t begin = clock();
+//		printf("start %LF\n", (long double)begin);
+//		sleep(5);		  
+//		clock_t end = clock();
+
+//		double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+//		printf("clock %LF\n",(long double) time_spent);
+
+		//		printf("dif: %lf\n ",(double) (end-begin / CLOCKS_PER_SEC)); 
+//		if((clock()-start / CLOCKS_PER_SEC)> 6){
+			printf("LET'S JOIN\n");
+			pthread_join(tid1, NULL);
+			printf("the main thread finished\n"); 
+//			start = clock();
+//		}
+
+
 
 	int status;
 	printf("BEFORE everything\n");

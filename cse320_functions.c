@@ -12,7 +12,7 @@
 #include <stddef.h> 
 #include <pthread.h>
 #include <sys/mman.h>
-
+#include <time.h>
 
 // .c
 
@@ -23,7 +23,7 @@ int N=5;
 int reapflag=0;
 int count = 0;
 int reap_thread_flag=0;
-
+clock_t start;
 
 
 struct addr_in_use addr_array[25];
@@ -384,7 +384,7 @@ void cse320_fork_thread(){
 
 
 	int status;
-	pthread_t tid1, tid2;
+	pthread_t tid1;
 	pid_t pid= getpid();
 
 	pid = fork();
@@ -397,7 +397,6 @@ void cse320_fork_thread(){
 		exit(0);
 	} else { // parent
 		int j;
-		//sem_wait(&mutex);
 		for(j=0; j<10; j++){ 
 			if(pidList[j]==0){  
 				pidList[j] = pid;  
@@ -414,25 +413,22 @@ void cse320_fork_thread(){
 			printf("thread!\n");
 			pthread_create(&tid1, NULL, cse320_reap_thread, &pidList);  
 			printf("the main thread continues with its execution\n"); 
+			printf("LET'S JOIN\n");
+			//		pthread_join(tid1, NULL);
+			sleep(1);
+			printf("the main thread finished\n"); 
 
-		}
-		//	wait(NULL);
-sleep(5);	
-	pthread_join(tid1, NULL);
-
-
-		printf("the main thread finished\n"); 
-		for(int k=0; k<10;k++){
-			printf("pid at %d : %d\n",k+1, pidList[k]); 
 
 
 		}
+		else {
+			sleep(5);
 
-		// set thread
-
+		}
 	}
-	printf("flag222: %d\n", flag2);
-//	system("ps -eo pid,ppid,stat,cmd");
+	//printf("sleeping\n");
+
+	//	system("ps -eo pid,ppid,stat,cmd");
 	//sem_post(&mutex); 
 
 }
@@ -449,12 +445,13 @@ void *cse320_reap_thread(void *pidList){
 
 	 */
 	int status;
-
 	sleep(5);
 	if(getpid()!=0){// parent
 
+
 		pid_t pid2;
 		int *pidlist = pidList;
+
 		for(int k=0; k<10; k++){
 			printf("pid at %d : %d\n",k+1, pidlist[k]);
 		}	
@@ -479,11 +476,12 @@ void *cse320_reap_thread(void *pidList){
 
 
 		}
-
+system("ps -eo pid,ppid,stat,cmd");   
 
 		printf("AFTER REAP-----\n");
 
 	}
+	//pthread_detach(pthread_self());	
 	//system("ps -eo pid,ppid,stat,cmd"); 	
 
 	//sem_post(&mutex); 
