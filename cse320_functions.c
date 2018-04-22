@@ -27,7 +27,7 @@ clock_t start;
 
 
 struct addr_in_use addr_array[25];
-struct files_in_use files_array[5];
+struct files_in_use files_array[25];
 int pidList[10];
 int pidt;
 int flag;
@@ -168,7 +168,7 @@ FILE *cse320_fopen(char *filename){
 
 	(struct files_in_use*)files_array;
 	// Already exist in files_array
-	for(o=0; o<5;o++){
+	for(o=0; o<25;o++){
 		if(files_array[o].filename!=NULL){
 			if(strcmp(filename,files_array[o].filename) ==0 ){
 				files_array[o].ref_count++;					
@@ -181,7 +181,7 @@ FILE *cse320_fopen(char *filename){
 
 	}
 
-	if(files_count>5) {
+	if(files_count>25) {
 		printf("Too many opened files\n");
 
 		cse320_clean();
@@ -195,8 +195,8 @@ FILE *cse320_fopen(char *filename){
 
 
 	// not in the array, opening for the first time, at empty spot
-	if(o==5){
-		for(l=0; l<5; l++){
+	if(o==25){
+		for(l=0; l<25; l++){
 
 			if(files_array[l].filename ==NULL && files_array[l].ref_count==0){
 				files_array[l].filename = malloc(100*sizeof(char*));
@@ -214,8 +214,8 @@ FILE *cse320_fopen(char *filename){
 
 
 		// files_array is full, replace first spot with ref_count =0  
-		if(l==5){
-			for(m=0; m<5; m++){
+		if(l==25){
+			for(m=0; m<25; m++){
 
 				if( files_array[m].ref_count==0 ){
 					strcpy(files_array[m].filename, filename);
@@ -246,7 +246,7 @@ void cse320_fclose(char* filename){
 
 	int k, flag;
 	flag= 0;
-	for(k=0; k<5; k++){
+	for(k=0; k<25; k++){
 		if(files_array[k].filename!=NULL){
 			if(strcmp(filename,files_array[k].filename) ==0){
 				if(files_array[k].ref_count==0){
@@ -275,7 +275,7 @@ void cse320_fclose(char* filename){
 		}
 	}
 
-	if( k==5){ // not found
+	if( k==25){ // not found
 		printf("Close: Illegal filename\n"); 
 
 		cse320_clean();
@@ -315,7 +315,7 @@ void cse320_clean(){
 
 
 
-	for(j=0; j<5; j++){
+	for(j=0; j<25; j++){
 		if( files_array[j].filename!= NULL){
 			if( files_array[j].ref_count>0 ){
 				//	printf("nono\n");		
@@ -357,7 +357,7 @@ void cse320_fork(){
 	//	printf(" pid: %d\n ", getpid());
 
 	if(pid==0){ // child
-		//		printf("CHILd HERE\n");	
+				printf("CHILd %d\n", getpid());	
 		exit(0);
 
 	} else { // parent
@@ -379,9 +379,6 @@ void cse320_fork_thread(){
 	printf("flag: %d\n", flag2);
 	sem_t mutex;
 	sem_init(&mutex, 0, 1);
-
-
-
 
 	int status;
 	pthread_t tid1;
@@ -414,7 +411,7 @@ void cse320_fork_thread(){
 			pthread_create(&tid1, NULL, cse320_reap_thread, &pidList);  
 			printf("the main thread continues with its execution\n"); 
 			printf("LET'S JOIN\n");
-			//		pthread_join(tid1, NULL);
+
 			sleep(1);
 			printf("the main thread finished\n"); 
 
@@ -422,11 +419,11 @@ void cse320_fork_thread(){
 
 		}
 		else {
-			sleep(5);
+
+			pthread_join(tid1, NULL);
 
 		}
 	}
-	//printf("sleeping\n");
 
 	//	system("ps -eo pid,ppid,stat,cmd");
 	//sem_post(&mutex); 
@@ -445,43 +442,48 @@ void *cse320_reap_thread(void *pidList){
 
 	 */
 	int status;
-	sleep(5);
-	if(getpid()!=0){// parent
+
+//	while(1){
+		sleep(N);
+		if(getpid()!=0){// parent
 
 
-		pid_t pid2;
-		int *pidlist = pidList;
+			pid_t pid2;
+			int *pidlist = pidList;
 
-		for(int k=0; k<10; k++){
-			printf("pid at %d : %d\n",k+1, pidlist[k]);
-		}	
+			for(int k=0; k<10; k++){
+				printf("pid at %d : %d\n",k+1, pidlist[k]);
+			}	
 
-		while((pid2 = waitpid(-1, &status, 0))>0){
+			while((pid2 = waitpid(-1, &status, 0))>0){
 
-			printf("Thread CHILD %d terminated\n", pid2);
-			int o;	
-			for(o = 0; o<10; o++){
+				printf("Thread CHILD %d terminated\n", pid2);
+				int o;	
+				for(o = 0; o<10; o++){
 
-				// remove from list
-				if(pidlist[o]==pid2){
-					pidlist[o]=0;
-					count--;
-					break;
+					// remove from list
+					if(pidlist[o]==pid2){
+						pidlist[o]=0;
+						count--;
+						break;
+					}
 				}
-			}
-			if(o == 10){
-				printf("NOT PSOSIBE\n");
-			}
+				if(o == 10){
+					printf("NOT PSOSIBE\n");
+				}
 
 
+
+			}
+			//system("ps -eo pid,ppid,stat,cmd");   
+
+			printf("AFTER REAP-----\n");
 
 		}
-system("ps -eo pid,ppid,stat,cmd");   
 
-		printf("AFTER REAP-----\n");
-
-	}
-	//pthread_detach(pthread_self());	
+//	}
+//printf("detached\n");
+//	pthread_detach(pthread_self());	
 	//system("ps -eo pid,ppid,stat,cmd"); 	
 
 	//sem_post(&mutex); 
@@ -504,7 +506,7 @@ void cse320_reap(int signum){
 	if(getpid()!=0){// parent
 		pid_t pid;
 		while((pid = waitpid(-1, &status, 0))>0){
-			//	printf("CHILD %d terminated\n", pid);
+				printf("CHILD %d terminated\n", pid);
 		}	
 	}
 	alarm(N);

@@ -59,7 +59,7 @@ cse320_setPidList(pidList);
 
 cse320_fork_thread();
 cse320_fork_thread();  
-// cse320_fork_thread();  
+cse320_fork_thread();  
 	/*
 	   pthread_t tid1, tid2;
 	   int niters = 10;;
@@ -129,13 +129,13 @@ cse320_fork_thread();
 
 	 */
 	//printArray2(files_array); 
-
-	/*
+/*
+	
 	   cse320_fork();
-
+cse320_fork();
 	   sleep(cse320_gettimer());// Default timer N = 5
 
-	 */
+*/	 
 
 
 
@@ -143,7 +143,7 @@ cse320_fork_thread();
 
 	/* DO NOT CHANGE ABOVE
 	   YOUR TEST FINISHES AFTER THIS*/
-	cse320_clean();  
+//	cse320_clean();  
 
 
 
