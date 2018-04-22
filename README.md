@@ -5,8 +5,7 @@
 It will be great (and useful for you) if you will document your work in this README and write a sort of documentation for your homework. We may give few extra credits for good documentation. -->
 
 ## Introduction
-
-
+This page contains guideline and explanations for part2(including EC2.1 and 2.2) and part3(including EC4) of HW#4. For Function description, following the sample file `"part23_test.c"` can be helpful.
 
 # Makefile
 This is a sample Makefile.
@@ -33,13 +32,13 @@ Sample file `"part23_test.c"` provides a guideline for part2 and part3.
 Read below description for each function in `"cse320_functions.h"` for part2 and part3.   
 
 
-## Struct/Function Description
+## Function Description
 
 `void cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_array2)` <br /> 
 Resets addr\_in\_use array and files\_in\_use array. Must be called before any function call. 
 
 `void *cse320_malloc(size_t size)` <br />
-Takes a size of type size\_t and allocate a block of memory that is size bytes large. If the requested memory can be allocated, a pointer of type void\* is returned to the beginning of the memory block.  
+Takes a size of type size\_t and allocate a block of memory that is size bytes large. If the requested memory can be allocated, a pointer of type `void*` is returned to the beginning of the memory block.  
 Besides, the number of memory block is limited to 25. If the user tries to allocate beyond the limit, the function prints the message "Not enough memory" and terminates with exit value -1. 
 
 `void cse320_free(void* ptr)` <br />
@@ -49,12 +48,12 @@ If the address in the pointer is already freed, print the function prints the me
 
 `FILE *cse320_fopen(char *filename)`<br />
 Opens the file whose name is the string pointed to by filename and associates a stream with it, with default flag "w". Returns the file pointer associated.  
-The same file can be opened multiples times, but have to be closed the same number of times. Otherwise, the file remains opened. The int variable ref\_count in files\_in\_use struct indicates the remaining times to close. If ref\_count is 0, the file is closed.   
-Besides, the number of opened files is limited to 25. If the user tries to open beyond the limit. the function prints the message "Too many opened files" and terminates with exit value -1. The global int variable files\_count indicates the number of opened files.  
+The same file can be opened multiples times, but have to be closed the same number of times. Otherwise, the file remains opened. The int variable `int ref_count` in `files_in_use struct` indicates the remaining times to close. If `int ref_count` is 0, the file is closed.   
+Besides, the number of opened files is limited to 25. If the user tries to open beyond the limit. the function prints the message "Too many opened files" and terminates with exit value -1. The global int variable `int files_count` indicates the number of opened files.  
 
 `void cse320_fclose(char *filename)`<br />
 Closes the file whose name is the string pointed to by filename and associates a stream with it.  
-For each file, the int variable ref\_count in files\_in\_use struct indicates the remaining times to close.  
+For each file, the int variable `int ref_count` in `files_in_use` struct indicates the remaining times to close.  
 If there is no such opened file, the function prints the message ”Close: Illegal filename” and terminates with exit value -1.   
 If the file is already closed, the function prints the message ”Close: Ref count is zero” and terminates with exit value -1.   
 
@@ -62,13 +61,14 @@ If the file is already closed, the function prints the message ”Close: Ref cou
 Frees any allocated memory block and closes any opened file, before exit.  
 
 `void cse320_fork()`<br />
-Creates a new process(child) by duplicating the calling process(parent). When `cse320_fork()` is called for the first time, `cse320_fork()` sets an timer of N seconds (N = 5 by default, but modifiable by calling `cse320_settimer1(int newN))`, which calls `cse320_reap()` every N seconds to reap child using Signal until program finishes.  
+Creates a new process(child) by duplicating the calling process(parent). When `cse320_fork()` is called for the first time, `cse320_fork()` sets a timer of N1 seconds (N1 = 5 by default, but modifiable by calling `cse320_settimer1(int newN)`), which calls `cse320_reap()` every N1 seconds to reap children using Signal until program finishes.  
 This function should be followed by sleep().  
 
 `void cse320_reap(int signum)`<br />
-Waits all children and reap them, to avoid zoombie process. `cse320_reap(int signum)` is executed every N seconds (initialized to 5 but modifiable with `cse320_settimer1(int newN)`), until program finishes.  
+Waits all children and reap them, to avoid zoombie process. `cse320_reap(int signum)` is executed every N1 seconds (initialized to 5 but modifiable with `cse320_settimer1(int newN)`), until program finishes.  
+ 
 `void cse320_settimer1(int newN)`<br />
-Takes a parameter newN of type int, changes global int variable N1 to new N. N1 is the interval for the timer to call `cse320_reap(int signum)`.
+Takes a parameter newN of type int, changes global `int variable N1` to new N. N1 is the interval for the timer to call `cse320_reap(int signum)`.
 
 `int cse320_gettimer1()`<br />
 Returns the current interval of the timer N1 to call `cse320_reap(int signum)`.
@@ -77,16 +77,16 @@ Returns the current interval of the timer N1 to call `cse320_reap(int signum)`.
 Resets the address of the data structure pidList. This data structure contains pid of children. For the sake of the homework, its capacity is limited to 10 pid, then 10 children. List of pids pidList used to reap children using `void cse320_reap_thread()`. 
 
 `void cse320_fork_thread()`<br />
-Creates a new process(child) by duplicating the calling process(parent). When `cse320_fork_thread()` is called for the first time, `cse320_fork()` sets an timer of N seconds (N = 5 by default, but modifiable by calling `cse320_settimer2(int newN)`), which creates a thread calling by `cse320_reap_thread()`, reaping children  every N seconds until program finishes.  
+Creates a new process(child) by duplicating the calling process(parent). When `cse320_fork_thread()` is called for the first time, `cse320_fork()` sets a timer of N2 seconds (N2 = 5 by default, but modifiable by calling `cse320_settimer2(int newN)`), which creates a thread calling by `cse320_reap_thread()`, reaping children  every N2 seconds until program finishes.  
 When a child process is created, its pid is added to the list called pidList.  
 This function should be followed by sleep().  
 
 `void cse320_reap_thread()`<br />
-Waits all children and reap them, to avoid zoombie process. `cse320_reap_thread()` is executed every N seconds (initialized to 5 but modifiable with `cse320_settimer2(int newN)`), until program finishes.  
+Waits all children and reap them, to avoid zoombie process. `cse320_reap_thread()` is executed every N2 seconds (initialized to 5 but modifiable with `cse320_settimer2(int newN)`), until program finishes.  
 When the a child process is reaped, its pid is removed from pidList.
 
 `void cse320_settimer2(int newN)`<br />
-Takes a parameter newN of type int, changes global int variable N2 to new N. N is the interval for the timer to call `cse320_reap_thread()`.
+Takes a parameter newN of type int, changes global `int variable N2` to new N. N2 is the interval for the timer to call `cse320_reap_thread()`.
 
 `int cse320_gettimer2()`<br />
 Returns the current interval of the timer N2 to call `cse320_reap_thread()`.
