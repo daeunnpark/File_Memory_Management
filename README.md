@@ -62,18 +62,36 @@ If the file is already closed, the function prints the message ”Close: Ref cou
 Frees any allocated memory block and closes any opened file, before exit.  
 
 `void cse320_fork()`<br />
-Creates a new process(child) by duplicating the calling process(parent). When `cse320_fork()` is called for the first time, `cse320_fork()` sets an timer of N seconds (N = 5 by default, but modifiable by calling `cse320_settimer(int newN))`, which calls `cse320_reap()` every N seconds to reap child.
+Creates a new process(child) by duplicating the calling process(parent). When `cse320_fork()` is called for the first time, `cse320_fork()` sets an timer of N seconds (N = 5 by default, but modifiable by calling `cse320_settimer1(int newN))`, which calls `cse320_reap()` every N seconds to reap child using Signal until program finishes.  
+This function should be followed by sleep().  
 
 `void cse320_reap(int signum)`<br />
-Waits all children and reap them, to avoid zoombie process. `cse320_reap(int signum)` is called every N seconds (initialized to 5 but modifiable with `cse320_settimer(int newN)`).
+Waits all children and reap them, to avoid zoombie process. `cse320_reap(int signum)` is executed every N seconds (initialized to 5 but modifiable with `cse320_settimer1(int newN)`), until program finishes.  
+`void cse320_settimer1(int newN)`<br />
+Takes a parameter newN of type int, changes global int variable N1 to new N. N1 is the interval for the timer to call `cse320_reap(int signum)`.
 
-`void cse320_settimer(int newN)`<br />
-Takes a parameter newN of type int, changes global int variable N to new N. N is the interval for the timer to call `cse320_reap(int signum)`.
+`int cse320_gettimer1()`<br />
+Returns the current interval of the timer N1 to call `cse320_reap(int signum)`.
 
-`int cse320_gettimer()`<br />
-Returns the current interval of the timer to call `cse320_reap(int signum)`.
+`void *cse320_setPidList(int* pidList)`<br />
+Resets the address of the data structure pidList. This data structure contains pid of children. For the sake of the homework, its capacity is limited to 10 pid, then 10 children. List of pids pidList used to reap children using `void cse320_reap_thread()`. 
+
+`void cse320_fork_thread()`<br />
+Creates a new process(child) by duplicating the calling process(parent). When `cse320_fork_thread()` is called for the first time, `cse320_fork()` sets an timer of N seconds (N = 5 by default, but modifiable by calling `cse320_settimer2(int newN)`), which creates a thread calling by `cse320_reap_thread()`, reaping children  every N seconds until program finishes.  
+When a child process is created, its pid is added to the list called pidList.  
+This function should be followed by sleep().  
+
+`void cse320_reap_thread()`<br />
+Waits all children and reap them, to avoid zoombie process. `cse320_reap_thread()` is executed every N seconds (initialized to 5 but modifiable with `cse320_settimer2(int newN)`), until program finishes.  
+When the a child process is reaped, its pid is removed from pidList.
+
+`void cse320_settimer2(int newN)`<br />
+Takes a parameter newN of type int, changes global int variable N2 to new N. N is the interval for the timer to call `cse320_reap_thread()`.
+
+`int cse320_gettimer2()`<br />
+Returns the current interval of the timer N2 to call `cse320_reap_thread()`.
+
 <br /> 
-
 
 
 @github/daeupark
