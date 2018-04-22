@@ -22,12 +22,16 @@ int files_count=0; // opened files
 int N=5;
 int reapflag=0;
 int count = 0;
-static int *glob_var;
+int reap_thread_flag=0;
+
+
 
 struct addr_in_use addr_array[25];
 struct files_in_use files_array[5];
-int pidList [100];
-
+int pidList[10];
+int pidt;
+int flag;
+int flag2=0;
 void printArray1(void* ptr);
 void printArray2(void* ptr);
 
@@ -51,6 +55,8 @@ void* cse320_set(struct addr_in_use* addr_array2, struct files_in_use* files_arr
 
 }
 void * cse320_setPidList(int* pidList2 ){
+	printf("setting lis\n");
+
 	pidList[0]= pidList2[0];
 
 }
@@ -370,108 +376,113 @@ void cse320_fork(){
 
 
 void cse320_fork_thread(){
+	printf("flag: %d\n", flag2);
+	sem_t mutex;
+	sem_init(&mutex, 0, 1);
 
-	/*	sem_t mutex;
-		sem_init(&mutex, 0, 1);
-		sem_wait(&mutex);
-	 */
+
 
 
 	int status;
+	pthread_t tid1, tid2;
 	pid_t pid= getpid();
 
-
-	glob_var = mmap(NULL, sizeof *glob_var, PROT_READ | PROT_WRITE, 
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-
-	*glob_var = 1;
-
 	pid = fork();
-	//	printf(" pid: %d\n ", getpid());
+	//sem_wait(&mutex); 
+
 
 	if(pid==0){ // child
-		printf("child, glo var: %d\n", *glob_var);	
-
+		printf("childexiting\n");
 		//add in the list	
-		pidList[count]= getpid();
-		count++;
-		printf("count fork : %d\n", count);  
-/*
-		for(int k=0; k<10; k++){
-			printf("PIDfork  at %d : %d|",k+1,pidList[k]);
-		}
-*/
-		(*glob_var)++;
 		exit(0);
-		printf("after exit++++_______________________+++++\n");
 	} else { // parent
-		if(count==0){
-			//	reapflag=1;
+		int j;
+		//sem_wait(&mutex);
+		for(j=0; j<10; j++){ 
+			if(pidList[j]==0){  
+				pidList[j] = pid;  
+				count++; 
+				break;
+			}
+		}
+
+
+
+		if(flag2==0){
+
+			flag2=1;
 			printf("thread!\n");
-			pthread_t tid1, tid2;
-			pthread_create(&tid1, NULL, cse320_reap_thread, NULL);  
+			pthread_create(&tid1, NULL, cse320_reap_thread, &pidList);  
 			printf("the main thread continues with its execution\n"); 
 
-			if(count ==0){
-				pthread_join(tid1, NULL); 
-				printf("the main thread finished\n"); 
-			}
+		}
+		//	wait(NULL);
+sleep(5);	
+	pthread_join(tid1, NULL);
 
 
-			// set thread
+		printf("the main thread finished\n"); 
+		for(int k=0; k<10;k++){
+			printf("pid at %d : %d\n",k+1, pidList[k]); 
+
 
 		}
 
+		// set thread
+
 	}
+	printf("flag222: %d\n", flag2);
+//	system("ps -eo pid,ppid,stat,cmd");
 	//sem_post(&mutex); 
 
 }
 
-void *cse320_reap_thread(){
 
+
+
+
+void *cse320_reap_thread(void *pidList){
+	printf("--------reap thread called\n"); 
 	/*sem_t mutex;
 	  sem_init(&mutex, 0, 1);
 	  sem_wait(&mutex);
 
 	 */
 	int status;
-	printf("reap thread called\n");
 
-
+	sleep(5);
 	if(getpid()!=0){// parent
-		printf("parrent-----");		
-		pid_t pid;
 
+		pid_t pid2;
+		int *pidlist = pidList;
 		for(int k=0; k<10; k++){
-			printf("PIDbef at %d : %d|",k+1, pidList[k]);
-		}		
-		while((pid = waitpid(-1, &status, 0))>0){
-
-			printf("Thread CHILD %d terminated\n", pid);
-			// remove
-	
-
-		for(int o = 0; o<10; o++){
-
-				if(pidList[o]==pid){
-					pidList[o]=200;
-					count--;
-					printf("count reap : %d\n", count);
-				}
-
-			}
-(*glob_var)++; 		
-	printf("AFTER REAP-----\n");
-			/*
-			   for(int k=0; k<10; k++){
-			   printf("PIDreap at %d : %d|",k+1, pidList[k]);
-			   }
-			 */
-
-
+			printf("pid at %d : %d\n",k+1, pidlist[k]);
 		}	
-		printf("%d\n", *glob_var);	
-		munmap(glob_var, sizeof *glob_var);
+
+		while((pid2 = waitpid(-1, &status, 0))>0){
+
+			printf("Thread CHILD %d terminated\n", pid2);
+			int o;	
+			for(o = 0; o<10; o++){
+
+				// remove from list
+				if(pidlist[o]==pid2){
+					pidlist[o]=0;
+					count--;
+					break;
+				}
+			}
+			if(o == 10){
+				printf("NOT PSOSIBE\n");
+			}
+
+
+
+		}
+
+
+		printf("AFTER REAP-----\n");
+
 	}
 	//system("ps -eo pid,ppid,stat,cmd"); 	
 

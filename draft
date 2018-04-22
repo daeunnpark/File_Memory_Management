@@ -1,3 +1,56 @@
+
+
+	int status;
+	printf("BEFORE everything\n");
+
+	pid_t pid1= getpid();
+
+
+	int j; 
+
+	pid1 = fork();
+	//	printf(" pid: %d\n ", getpid());
+
+	if(pid1==0){ // child
+		printf("child!\n");
+	//	exit(0);
+	} else { // parent
+
+		printf("thread!\n");
+		pthread_t tid1, tid2;
+
+		//add to the list at first empty spot
+
+		for(j=0; j<10; j++){	
+			if(pidList[j]==0){
+				pidList[j] = pid1;
+				count++;
+				break;
+			}
+		}
+
+		printf("BEFORE THREADS\n");
+		for(int k=0; k<10; k++){
+			printf("pid at %d : %d\n",k+1, pidList[k]);
+		}		
+
+		if(reap_thread_flag==0){
+			pthread_create(&tid1, NULL, cse320_reap_thread, &pidList);  
+			printf("the main thread continues with its execution\n"); 		
+			reap_thread_flag=1;
+		}
+
+		printf("rrrr%d\n", count);
+		if(count ==0){
+			printf("gggg\n");
+			pthread_join(tid1, NULL); 
+			printf("the main thread finished\n"); 
+		}
+
+
+	}
+
+
 p = strtok (NULL, " ");  
 
 	//	char    str[]= "ls -l";

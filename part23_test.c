@@ -58,7 +58,7 @@ int main(){
 cse320_setPidList(pidList);
 
 cse320_fork_thread();
- cse320_fork_thread();  
+cse320_fork_thread();  
 // cse320_fork_thread();  
 	/*
 	   pthread_t tid1, tid2;
