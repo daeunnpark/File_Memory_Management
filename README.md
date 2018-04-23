@@ -5,7 +5,7 @@
 It will be great (and useful for you) if you will document your work in this README and write a sort of documentation for your homework. We may give few extra credits for good documentation. -->
 
 ## Introduction
-This page contains guideline and explanations for part2(including EC2.1 and 2.2) and part3(including EC4) of HW#4. For Function description, following the sample file `"part23_test.c"` can be helpful.
+This file contains guideline and explanations for part2 (including EC2.1 and 2.2) and part3 (including EC4) of HW#4. For Function description, following the sample file `"part23_test.c"` can be helpful.
 
 # Makefile
 This is a sample Makefile.
