@@ -50,7 +50,6 @@ prompt:
 		// Block any Signal	
 		sigfillset(&mask);
 		sigprocmask(SIG_SETMASK, &mask, NULL);
-		//	sem_wait(&mutex);
 
 		if(pid = fork()==0){
 			// Unblock for Child
@@ -84,7 +83,7 @@ prompt:
 			}
 
 
-			// Install signal handler to ignore pending signals from children 
+			// Install dummy signal handler to ignore pending signals from children 
 			int k;
 			for(k = 1; k <=31 ; k++)
 			{
@@ -97,16 +96,11 @@ prompt:
 
 			// reset handler for parents
 			int p;
-			for(p = 1; p <=31 ; p++)
-			{
+			for(p = 1; p <=31 ; p++){
 				signal(p,SIG_DFL);
 			}
 
-
-
-			//sem_post(&mutex);		
 			//system("ps -eo pid,ppid,stat,cmd");
-			//	free(args);
 			goto prompt;
 
 		}
