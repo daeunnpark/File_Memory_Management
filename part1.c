@@ -13,15 +13,13 @@ extern char **environ;
 
 // dummy handler to ignore signals 
 static void handler (int bar){     
-  // nothing
+	// nothing
 }
 
 int main(){
 
 	char* command = (char*)malloc(100* sizeof(char*));
 	char* X= (char*)malloc(100* sizeof(char*));
-
-
 
 
 prompt:
@@ -62,10 +60,11 @@ prompt:
 			execve(args[0], args, env_args);
 			//fprintf(stderr, "Oops!\n");
 
-
 			environ = env_args;
 			execvp(args[0], args);
-			fprintf(stderr, "Error in running applcation.\n");
+			//fprintf(stderr, "Error in running applcation.\n");
+
+			exit(0);
 
 
 		} else { 
@@ -120,7 +119,6 @@ prompt:
 	} else if (strcmp(command, "exit")==0){
 		free(command);
 		free(X);
-		//printArray2(files_array);	
 
 		exit(0);
 	} else {

@@ -1,4 +1,16 @@
 
+
+
+
+typedef struct addr_in_use{
+	void* addr;
+	int ref_count;// = 0;
+
+}addr_in_use;
+
+extern addr_in_use addr;
+
+
 void printArray1(struct addr_in_use* ptr){
 	int j=0;
 	for(j=0; j<25;j++){
