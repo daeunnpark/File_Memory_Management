@@ -1,6 +1,6 @@
 
 ## Introduction
-This file contains guideline and explanations for part2 (including EC2.1 and 2.2) and part3 (including EC4) of HW#4. For Function description, following the sample file `"part23_test.c"` can be helpful.
+This file contains guideline and explanations for file and memory management application named `"part23"`. For Function description, following the sample file `"part23_test.c"` can be helpful.
 
 # Makefile
 This is a \*sample Makefile.
